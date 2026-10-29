@@ -1,0 +1,457 @@
+
+/* ==========================================================
+   AI LEDGER — DASHBOARD DATA CONTROLLER
+   Data source: Python + DuckDB JSON exports
+   ========================================================== */
+
+"use strict";
+
+const AILedgerApp = (() => {
+  const state = {
+    categories: [],
+    costs: [],
+    ledger: [],
+    simulation: null,
+    sensitivity: [],
+    monteCarlo: [],
+    page: 1,
+    pageSize: 25,
+    loading: false
+  };
+
+  const $ = (selector) => document.querySelector(selector);
+
+  const money = (value) =>
+    Number(value || 0).toLocaleString("en-IN", {
+      style: "currency",
+      currency: "INR",
+      maximumFractionDigits: 2
+    });
+
+  const number = (value, digits = 2) =>
+    Number(value || 0).toLocaleString("en-IN", {
+      maximumFractionDigits: digits
+    });
+
+  const percent = (value, digits = 2) =>
+    `${(Number(value || 0) * 100).toFixed(digits)}%`;
+
+  function escapeHTML(value) {
+    return String(value ?? "").replace(/[&<>"']/g, (char) => ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#39;"
+    })[char]);
+  }
+
+  function showToast(message) {
+    const toast = $("#toast");
+    if (!toast) return;
+
+    toast.textContent = message;
+    toast.classList.add("visible");
+
+    // Hide on the next user interaction or when another
+    // message replaces this one. No timer is required.
+    toast.setAttribute("data-message", message);
+  }
+
+  async function loadJSON(filename) {
+    const response = await fetch(`exports/${filename}`, {
+      cache: "no-store"
+    });
+
+    if (!response.ok) {
+      throw new Error(
+        `${filename}: HTTP ${response.status}. Check the file path.`
+      );
+    }
+
+    return response.json();
+  }
+
+  function validateArray(value, filename) {
+    if (!Array.isArray(value)) {
+      throw new Error(`${filename} must contain a JSON array.`);
+    }
+    return value;
+  }
+
+  function validateData() {
+    const required = [
+      ["category_summary.json", state.categories],
+      ["cost_breakdown.json", state.costs],
+      ["ledger.json", state.ledger],
+      ["sensitivity.json", state.sensitivity],
+      ["monte_carlo.json", state.monteCarlo]
+    ];
+
+    for (const [filename, rows] of required) {
+      validateArray(rows, filename);
+    }
+
+    if (!state.simulation ||
+        typeof state.simulation !== "object" ||
+        !state.simulation.net_value_after_setup) {
+      throw new Error(
+        "simulation_summary.json has an unexpected schema."
+      );
+    }
+
+    const ledgerFields = [
+      "task_id", "category", "baseline_cost",
+      "ai_usage_cost", "review_cost", "rework_cost",
+      "error_cost", "net_value"
+    ];
+
+    if (state.ledger.length) {
+      for (const field of ledgerFields) {
+        if (!(field in state.ledger[0])) {
+          throw new Error(`ledger.json is missing ${field}.`);
+        }
+      }
+    }
+  }
+
+  async function loadAllData() {
+    if (state.loading) return;
+
+    state.loading = true;
+    showToast("Loading exported analytics data…");
+
+    try {
+      const [
+        categories,
+        costs,
+        ledger,
+        simulation,
+        sensitivity,
+        monteCarlo
+      ] = await Promise.all([
+        loadJSON("category_summary.json"),
+        loadJSON("cost_breakdown.json"),
+        loadJSON("ledger.json"),
+        loadJSON("simulation_summary.json"),
+        loadJSON("sensitivity.json"),
+        loadJSON("monte_carlo.json")
+      ]);
+
+      state.categories = validateArray(
+        categories, "category_summary.json"
+      );
+      state.costs = validateArray(costs, "cost_breakdown.json");
+      state.ledger = validateArray(ledger, "ledger.json");
+      state.simulation = simulation;
+      state.sensitivity = validateArray(
+        sensitivity, "sensitivity.json"
+      );
+      state.monteCarlo = validateArray(
+        monteCarlo, "monte_carlo.json"
+      );
+
+      validateData();
+
+      renderAll();
+      showToast("Dashboard data loaded successfully.");
+    } catch (error) {
+      console.error("AI Ledger data loading failed:", error);
+
+      showToast(
+        `Data loading failed: ${error.message}. Check exports and server.`
+      );
+
+      renderLoadError(error.message);
+    } finally {
+      state.loading = false;
+    }
+  }
+
+  function renderLoadError(message) {
+    for (const id of [
+      "category-table-body",
+      "ledger-table-body"
+    ]) {
+      const element = document.getElementById(id);
+      if (element) {
+        element.innerHTML =
+          `<tr><td colspan="8">${escapeHTML(message)}</td></tr>`;
+      }
+    }
+
+    for (const id of [
+      "cost-chart",
+      "monte-carlo-chart",
+      "sensitivity-chart",
+      "payback-chart"
+    ]) {
+      const element = document.getElementById(id);
+      if (element) {
+        element.textContent = "Data unavailable. Check console.";
+      }
+    }
+  }
+
+  function renderKPIs() {
+    const simulation = state.simulation;
+    const distribution = simulation.net_value_after_setup;
+
+    $("#kpi-net-value").textContent =
+      money(distribution.p50);
+
+    // Break-even accuracy is not present in the verified exports.
+    $("#kpi-break-even").textContent = "N/A";
+
+    const baselineTotal = state.ledger.reduce(
+      (sum, row) => sum + Number(row.baseline_cost || 0), 0
+    );
+
+    const reviewTotal = state.ledger.reduce(
+      (sum, row) => sum + Number(row.review_cost || 0), 0
+    );
+
+    $("#kpi-review-burden").textContent =
+      baselineTotal > 0
+        ? percent(reviewTotal / baselineTotal)
+        : "N/A";
+
+    const escapedTasks = state.ledger.filter(
+      row => Number(row.error_cost || 0) > 0
+    ).length;
+
+    $("#kpi-error-rate").textContent =
+      state.ledger.length > 0
+        ? percent(escapedTasks / state.ledger.length)
+        : "N/A";
+  }
+
+  function renderCategoryTable() {
+    const tbody = $("#category-table-body");
+    if (!tbody) return;
+
+    tbody.innerHTML = state.categories.map(row => {
+      const verdict = String(row.verdict || "UNCLASSIFIED");
+      const verdictClass = ({
+        "AUTOMATE": "verdict-automate",
+        "ASSIST": "verdict-assist",
+        "KEEP HUMAN": "verdict-human"
+      })[verdict] || "";
+
+      return `
+        <tr>
+          <td>${escapeHTML(row.category)}</td>
+          <td>${number(row.tasks, 0)}</td>
+          <td>${money(row.net_per_task)}</td>
+          <td>${percent(row.escaped_error_rate)}</td>
+          <td>${percent(row.review_burden)}</td>
+          <td>
+            <span class="verdict ${verdictClass}">
+              ${escapeHTML(verdict)}
+            </span>
+          </td>
+        </tr>
+      `;
+    }).join("");
+  }
+
+  function getFilteredLedger() {
+    const search = ($("#ledger-search")?.value || "")
+      .trim().toLowerCase();
+
+    const category = $("#ledger-category")?.value || "";
+
+    return state.ledger.filter(row => {
+      const matchesSearch =
+        String(row.task_id).toLowerCase().includes(search) ||
+        String(row.category).toLowerCase().includes(search);
+
+      const matchesCategory =
+        !category || row.category === category;
+
+      return matchesSearch && matchesCategory;
+    });
+  }
+
+  function renderLedger() {
+    const tbody = $("#ledger-table-body");
+    if (!tbody) return;
+
+    const rows = getFilteredLedger();
+    const totalPages = Math.max(
+      1, Math.ceil(rows.length / state.pageSize)
+    );
+
+    state.page = Math.min(state.page, totalPages);
+
+    const start = (state.page - 1) * state.pageSize;
+    const pageRows = rows.slice(start, start + state.pageSize);
+
+    tbody.innerHTML = pageRows.map(row => `
+      <tr>
+        <td>${number(row.task_id, 0)}</td>
+        <td>${escapeHTML(row.category)}</td>
+        <td>${money(row.baseline_cost)}</td>
+        <td>${money(row.ai_usage_cost)}</td>
+        <td>${money(row.review_cost)}</td>
+        <td>${money(row.rework_cost)}</td>
+        <td>${money(row.error_cost)}</td>
+        <td class="${Number(row.net_value) >= 0 ? "positive-value" : "negative-value"}">
+          ${money(row.net_value)}
+        </td>
+      </tr>
+    `).join("");
+
+    if (!pageRows.length) {
+      tbody.innerHTML =
+        '<tr><td colspan="8">No matching task records.</td></tr>';
+    }
+
+    $("#ledger-count").textContent =
+      `${number(rows.length, 0)} matching tasks`;
+
+    $("#ledger-page-info").textContent =
+      `Page ${state.page} of ${totalPages}`;
+
+    $("#ledger-prev").disabled = state.page <= 1;
+    $("#ledger-next").disabled = state.page >= totalPages;
+  }
+
+  function renderCharts() {
+    const charts = window.AILedgerCharts;
+
+    if (!charts) {
+      throw new Error(
+        "charts.js did not load. Check the script filename."
+      );
+    }
+
+    charts.renderCostBreakdown(state.costs);
+    charts.renderMonteCarlo(state.monteCarlo);
+    charts.renderSensitivity(state.sensitivity);
+
+    // This chart requires cumulative.json, which will be
+    // exported from DuckDB in a later verified step.
+    charts.renderPayback([]);
+  }
+
+  function renderAll() {
+    renderKPIs();
+    renderCategoryTable();
+    renderLedger();
+    renderCharts();
+  }
+
+  function downloadCSV(filename, rows, columns) {
+    if (!rows.length) {
+      showToast("No rows available to export.");
+      return;
+    }
+
+    const quote = value =>
+      `"${String(value ?? "").replace(/"/g, '""')}"`;
+
+    const csv = [
+      columns.map(column => quote(column.label)).join(","),
+      ...rows.map(row =>
+        columns.map(column => quote(row[column.key])).join(",")
+      )
+    ].join("\r\n");
+
+    const blob = new Blob(["\uFEFF", csv], {
+      type: "text/csv;charset=utf-8;"
+    });
+
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+
+    anchor.href = url;
+    anchor.download = filename;
+    anchor.click();
+
+    URL.revokeObjectURL(url);
+    showToast(`${filename} export requested.`);
+  }
+
+  function bindEvents() {
+    $("#refresh-data")?.addEventListener("click", loadAllData);
+
+    $("#ledger-search")?.addEventListener("input", () => {
+      state.page = 1;
+      renderLedger();
+    });
+
+    $("#ledger-category")?.addEventListener("change", () => {
+      state.page = 1;
+      renderLedger();
+    });
+
+    $("#ledger-prev")?.addEventListener("click", () => {
+      state.page = Math.max(1, state.page - 1);
+      renderLedger();
+    });
+
+    $("#ledger-next")?.addEventListener("click", () => {
+      state.page++;
+      renderLedger();
+    });
+
+    $("#export-categories")?.addEventListener("click", () => {
+      downloadCSV("ai-ledger-categories.csv", state.categories, [
+        { key: "category", label: "Category" },
+        { key: "tasks", label: "Tasks" },
+        { key: "net_per_task", label: "Net per task" },
+        { key: "escaped_error_rate", label: "Escaped error rate" },
+        { key: "review_burden", label: "Review burden" },
+        { key: "verdict", label: "Model verdict" }
+      ]);
+    });
+
+    $("#export-ledger")?.addEventListener("click", () => {
+      downloadCSV("ai-ledger-task-records.csv", getFilteredLedger(), [
+        { key: "task_id", label: "Task ID" },
+        { key: "category", label: "Category" },
+        { key: "baseline_cost", label: "Baseline cost" },
+        { key: "ai_usage_cost", label: "AI usage cost" },
+        { key: "review_cost", label: "Review cost" },
+        { key: "rework_cost", label: "Rework cost" },
+        { key: "error_cost", label: "Error cost" },
+        { key: "net_value", label: "Net value" }
+      ]);
+    });
+
+    $("#recalculate-model")?.addEventListener("click", () => {
+      showToast(
+        "Assumptions are not recalculated in the browser yet. " +
+        "We will connect them to the Python model in a later step."
+      );
+    });
+
+    document.querySelectorAll(".nav-link").forEach(link => {
+      link.addEventListener("click", () => {
+        document.querySelectorAll(".nav-link").forEach(item =>
+          item.classList.remove("active")
+        );
+
+        link.classList.add("active");
+      });
+    });
+
+    $("#menu-toggle")?.addEventListener("click", () => {
+      const sidebar = $("#sidebar");
+      if (!sidebar) return;
+
+      const open = sidebar.classList.toggle("sidebar-open");
+      $("#menu-toggle").setAttribute("aria-expanded", String(open));
+    });
+  }
+
+  function init() {
+    bindEvents();
+    loadAllData();
+  }
+
+  return { init, loadAllData };
+})();
+
+document.addEventListener("DOMContentLoaded", AILedgerApp.init);

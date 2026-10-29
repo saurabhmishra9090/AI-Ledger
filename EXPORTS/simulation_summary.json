@@ -1,0 +1,14 @@
+{
+  "simulation_label": "SYNTHETIC SIMULATION",
+  "parameter_label": "ASSUMPTION",
+  "seed": 42,
+  "simulation_count": 2000,
+  "setup_cost": 2000.0,
+  "net_value_after_setup": {
+    "p10": 38676.21,
+    "p50": 42072.73,
+    "p90": 45639.91,
+    "mean": 42132.38,
+    "probability_positive": 1.0
+  }
+}

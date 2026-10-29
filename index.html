@@ -1,0 +1,414 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#470038">
+  <meta name="description" content="AI Ledger — evaluate the true cost and value of AI-assisted workflows.">
+  <title>AI Ledger | Cost vs Value Analytics</title>
+
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+  <div class="app-shell">
+
+    <aside class="sidebar" id="sidebar">
+      <a class="brand" href="#overview" aria-label="AI Ledger home">
+        <span class="brand-ai">AI</span>
+        <span class="brand-ledger">LEDGER</span>
+      </a>
+
+      <div class="sidebar-caption">WORKSPACE</div>
+
+      <nav class="sidebar-nav" aria-label="Main navigation">
+        <a class="nav-link active" href="#overview" data-section="overview">
+          <span class="nav-icon">◈</span>
+          <span>Overview</span>
+        </a>
+
+        <a class="nav-link" href="#analysis" data-section="analysis">
+          <span class="nav-icon">▥</span>
+          <span>Analysis</span>
+        </a>
+
+        <a class="nav-link" href="#category-triage" data-section="category-triage">
+          <span class="nav-icon">▦</span>
+          <span>Category Triage</span>
+        </a>
+
+        <a class="nav-link" href="#task-ledger" data-section="task-ledger">
+          <span class="nav-icon">▤</span>
+          <span>Task Ledger</span>
+        </a>
+
+        <a class="nav-link" href="#assumptions" data-section="assumptions">
+          <span class="nav-icon">⚙</span>
+          <span>Assumptions</span>
+        </a>
+
+        <a class="nav-link" href="#ai-assistant" data-section="ai-assistant">
+          <span class="nav-icon">✳</span>
+          <span>AI Assistant</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <span class="status-dot"></span>
+        <span>Simulation engine ready</span>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <button
+          class="icon-button menu-toggle"
+          id="menu-toggle"
+          type="button"
+          aria-label="Toggle navigation"
+          aria-expanded="false"
+        >☰</button>
+
+        <div class="breadcrumb">
+          <span>Workspace</span>
+          <span class="breadcrumb-separator">/</span>
+          <span>AI Ledger</span>
+        </div>
+
+        <div class="topbar-actions">
+          <span class="environment-label">
+            <span class="status-dot"></span>
+            SYNTHETIC SIMULATION
+          </span>
+
+          <button class="icon-button" id="refresh-data" type="button"
+            aria-label="Refresh dashboard data" title="Refresh data">↻</button>
+        </div>
+      </header>
+
+      
+<section class="hero hero-banner" id="overview">
+  <img
+    class="hero-banner-image"
+    src="assets/ai-ledger-banner.png"
+    alt="AI LEDGER — True Cost vs Value of an AI-Assisted Workflow"
+    fetchpriority="high"
+  />
+</section>
+
+
+      <section class="dashboard-section" aria-labelledby="overview-title">
+        <div class="section-heading">
+          <div>
+            <div class="eyebrow">PERFORMANCE SNAPSHOT</div>
+            <h2 class="section-title" id="overview-title">Analytics Overview</h2>
+          </div>
+
+          <span class="data-badge">
+            <span class="status-dot"></span>
+            ASSUMPTION-BASED MODEL
+          </span>
+        </div>
+
+        <div class="kpi-grid">
+          <article class="card kpi-card">
+            <div class="kpi-topline">
+              <span class="kpi-label">Net Value After Setup</span>
+              <span class="kpi-icon">₹</span>
+            </div>
+            <div class="kpi-value" id="kpi-net-value">—</div>
+            <div class="kpi-note">Monte Carlo median</div>
+            <div class="kpi-sparkline" aria-hidden="true"></div>
+          </article>
+
+          <article class="card kpi-card">
+            <div class="kpi-topline">
+              <span class="kpi-label">Break-even Accuracy</span>
+              <span class="kpi-icon">◎</span>
+            </div>
+            <div class="kpi-value pink" id="kpi-break-even">—</div>
+            <div class="kpi-note">Accuracy threshold to be calculated</div>
+            <div class="kpi-sparkline" aria-hidden="true"></div>
+          </article>
+
+          <article class="card kpi-card">
+            <div class="kpi-topline">
+              <span class="kpi-label">Review Burden</span>
+              <span class="kpi-icon">◉</span>
+            </div>
+            <div class="kpi-value pink" id="kpi-review-burden">—</div>
+            <div class="kpi-note">Review cost / baseline cost</div>
+            <div class="kpi-sparkline" aria-hidden="true"></div>
+          </article>
+
+          <article class="card kpi-card">
+            <div class="kpi-topline">
+              <span class="kpi-label">Escaped Error Rate</span>
+              <span class="kpi-icon">⚠</span>
+            </div>
+            <div class="kpi-value coral" id="kpi-error-rate">—</div>
+            <div class="kpi-note">Errors reaching customers</div>
+            <div class="kpi-sparkline" aria-hidden="true"></div>
+          </article>
+        </div>
+      </section>
+
+      <section class="dashboard-section" id="analysis">
+        <div class="section-heading">
+          <div>
+            <div class="eyebrow">FINANCIAL MODEL</div>
+            <h2 class="section-title">Analysis</h2>
+          </div>
+          <span class="section-caption">Values in INR (₹)</span>
+        </div>
+
+        <div class="chart-grid">
+          <article class="card chart-card">
+            <div class="chart-header">
+              <div>
+                <h3 class="chart-title">Cost Composition</h3>
+                <p class="chart-subtitle">Where workflow costs originate</p>
+              </div>
+            </div>
+            <div class="chart-container" id="cost-chart"></div>
+          </article>
+
+          <article class="card chart-card">
+            <div class="chart-header">
+              <div>
+                <h3 class="chart-title">Monte Carlo Distribution</h3>
+                <p class="chart-subtitle">Net value after setup cost</p>
+              </div>
+            </div>
+            <div class="chart-container" id="monte-carlo-chart"></div>
+          </article>
+
+          <article class="card chart-card">
+            <div class="chart-header">
+              <div>
+                <h3 class="chart-title">Sensitivity Analysis</h3>
+                <p class="chart-subtitle">Impact of alternative assumptions</p>
+              </div>
+            </div>
+            <div class="chart-container" id="sensitivity-chart"></div>
+          </article>
+
+          <article class="card chart-card">
+            <div class="chart-header">
+              <div>
+                <h3 class="chart-title">Cumulative Payback</h3>
+                <p class="chart-subtitle">Cumulative net value after setup</p>
+              </div>
+            </div>
+            <div class="chart-container" id="payback-chart"></div>
+          </article>
+        </div>
+      </section>
+
+      <section class="dashboard-section" id="category-triage">
+        <div class="section-heading">
+          <div>
+            <div class="eyebrow">DECISION SUPPORT</div>
+            <h2 class="section-title">Category Triage</h2>
+          </div>
+          <span class="section-caption">Model recommendations, not automatic decisions</span>
+        </div>
+
+        <article class="card table-card">
+          <div class="table-toolbar">
+            <div>
+              <h3 class="chart-title">Category Performance</h3>
+              <p class="chart-subtitle">Compare economics and escaped-error risk</p>
+            </div>
+            <button class="secondary-button" id="export-categories" type="button">
+              Export CSV
+            </button>
+          </div>
+
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>Category</th>
+                  <th>Tasks</th>
+                  <th>Net / Task</th>
+                  <th>Escaped Errors</th>
+                  <th>Review Burden</th>
+                  <th>Model Verdict</th>
+                </tr>
+              </thead>
+              <tbody id="category-table-body">
+                <tr><td colspan="6">Loading category data…</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </article>
+      </section>
+
+      <section class="dashboard-section" id="task-ledger">
+        <div class="section-heading">
+          <div>
+            <div class="eyebrow">TRANSACTION DETAIL</div>
+            <h2 class="section-title">Task Ledger</h2>
+          </div>
+          <span class="section-caption">Task-level cost accounting</span>
+        </div>
+
+        <article class="card table-card">
+          <div class="table-toolbar">
+            <div>
+              <h3 class="chart-title">Task Records</h3>
+              <p class="chart-subtitle" id="ledger-count">Loading records…</p>
+            </div>
+
+            <div class="table-controls">
+              <input id="ledger-search" type="search"
+                placeholder="Search task ID or category"
+                aria-label="Search task ledger">
+              <select id="ledger-category" aria-label="Filter by category">
+                <option value="">All categories</option>
+                <option>Billing</option>
+                <option>Technical</option>
+                <option>Account</option>
+                <option>Returns</option>
+                <option>Complaints</option>
+              </select>
+              <button class="secondary-button" id="export-ledger" type="button">
+                Export CSV
+              </button>
+            </div>
+          </div>
+
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>Task ID</th>
+                  <th>Category</th>
+                  <th>Baseline</th>
+                  <th>AI Cost</th>
+                  <th>Review</th>
+                  <th>Rework</th>
+                  <th>Error Cost</th>
+                  <th>Net Value</th>
+                </tr>
+              </thead>
+              <tbody id="ledger-table-body">
+                <tr><td colspan="8">Loading task ledger…</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="table-footer">
+            <span id="ledger-page-info">Page 1</span>
+            <div class="pagination">
+              <button class="secondary-button" id="ledger-prev" type="button">Previous</button>
+              <button class="secondary-button" id="ledger-next" type="button">Next</button>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <section class="dashboard-section" id="assumptions">
+        <div class="section-heading">
+          <div>
+            <div class="eyebrow">MODEL GOVERNANCE</div>
+            <h2 class="section-title">Assumptions & Sensitivity</h2>
+          </div>
+          <span class="data-badge">ASSUMPTION</span>
+        </div>
+
+        <article class="card assumptions-card">
+          <p class="section-description">
+            These are proposed starting values, not measured business facts.
+            Changes will only be described as model outputs when recalculated.
+          </p>
+
+          <div class="assumptions-grid">
+            <label class="assumption-field">
+              <span>Hourly labour rate (₹)</span>
+              <input id="assumption-hourly-rate" type="number" min="0" step="1" value="30">
+            </label>
+
+            <label class="assumption-field">
+              <span>AI cost per task (₹)</span>
+              <input id="assumption-ai-cost" type="number" min="0" step="0.01" value="0.02">
+            </label>
+
+            <label class="assumption-field">
+              <span>Escaped-error cost (₹)</span>
+              <input id="assumption-error-cost" type="number" min="0" step="1" value="40">
+            </label>
+
+            <label class="assumption-field">
+              <span>One-time setup cost (₹)</span>
+              <input id="assumption-setup-cost" type="number" min="0" step="100" value="2000">
+            </label>
+          </div>
+
+          <div class="assumptions-actions">
+            <button class="primary-button" id="recalculate-model" type="button">
+              Recalculate Model
+            </button>
+            <span id="assumption-status" role="status">
+              Default assumptions loaded
+            </span>
+          </div>
+        </article>
+      </section>
+
+      <section class="dashboard-section" id="ai-assistant">
+        <div class="section-heading">
+          <div>
+            <div class="eyebrow">EVIDENCE-BASED Q&A</div>
+            <h2 class="section-title">MetricTrust-style AI Assistant</h2>
+          </div>
+          <span class="section-caption">Answers grounded in loaded dashboard data</span>
+        </div>
+
+        <article class="card assistant-card">
+          <div class="assistant-intro">
+            <div class="assistant-icon">✳</div>
+            <div>
+              <h3 class="chart-title">Ask AI Ledger</h3>
+              <p class="chart-subtitle">
+                Ask about costs, category verdicts, simulation results or assumptions.
+                Unsupported questions will be identified rather than guessed.
+              </p>
+            </div>
+          </div>
+
+          <div class="assistant-messages" id="assistant-messages" aria-live="polite">
+            <div class="assistant-message assistant-response">
+              Load the dashboard data first. I will answer using the available model outputs.
+            </div>
+          </div>
+
+          <form class="assistant-form" id="assistant-form">
+            <input id="assistant-input" type="text"
+              placeholder="e.g. Which category has the highest escaped-error rate?"
+              aria-label="Ask AI Ledger"
+              required>
+            <button class="primary-button" type="submit">Ask</button>
+          </form>
+        </article>
+      </section>
+
+      <footer class="app-footer">
+        <div class="footer-brand">
+          <span class="brand-ai">AI</span>
+          <span class="brand-ledger">LEDGER</span>
+        </div>
+        <p>Synthetic simulation · Assumptions are not measured business facts.</p>
+      </footer>
+    </main>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="charts.js" defer></script>
+  <script src="chatbot.js" defer></script>
+  <script src="app.js" defer></script>
+</body>
+</html>
