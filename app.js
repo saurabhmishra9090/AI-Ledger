@@ -201,8 +201,12 @@ const AILedgerApp = (() => {
       money(distribution.p50);
 
     // Break-even accuracy is not present in the verified exports.
-    $("#kpi-break-even").textContent = "N/A";
+   const breakEvenShift = Number(state.simulation.break_even_accuracy_shift);
 
+    $("#kpi-break-even").textContent =
+    Number.isFinite(breakEvenShift)
+        ? `${(breakEvenShift * 100).toFixed(2)} pp`
+        : "N/A";
     const baselineTotal = state.ledger.reduce(
       (sum, row) => sum + Number(row.baseline_cost || 0), 0
     );

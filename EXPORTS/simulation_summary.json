@@ -1,6 +1,7 @@
 {
   "simulation_label": "SYNTHETIC SIMULATION",
   "parameter_label": "ASSUMPTION",
+  "break_even_accuracy_shift": -0.1927,
   "seed": 42,
   "simulation_count": 2000,
   "setup_cost": 2000.0,

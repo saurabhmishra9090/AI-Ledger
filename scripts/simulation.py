@@ -182,10 +182,44 @@ def run_sensitivity(tasks: pd.DataFrame) -> pd.DataFrame:
 
     return pd.DataFrame(rows)
 
+def calculate_break_even_accuracy(tasks: pd.DataFrame) -> float | None:
+    """Find the uniform accuracy shift where net value after setup is zero."""
 
+    def net_value_at_shift(shift: float) -> float:
+        operating_value = calculate_scenario(
+            tasks,
+            accuracy_shift=shift,
+        )
+        return operating_value - SETUP_COST
+
+    low = -1.0
+    high = 1.0
+    low_value = net_value_at_shift(low)
+    high_value = net_value_at_shift(high)
+
+    # Return None if the tested range does not cross zero.
+    if low_value * high_value > 0:
+        return None
+
+    for _ in range(100):
+        mid = (low + high) / 2.0
+        mid_value = net_value_at_shift(mid)
+
+        if abs(mid_value) < 0.01:
+            return mid
+
+        if low_value * mid_value <= 0:
+            high = mid
+            high_value = mid_value
+        else:
+            low = mid
+            low_value = mid_value
+
+    return (low + high) / 2.0
 def export_json(
     monte_carlo: pd.DataFrame,
     sensitivity: pd.DataFrame,
+    break_even_accuracy: float | None,
 ) -> None:
     """Export dashboard-friendly summaries as JSON arrays."""
     EXPORT_DIR.mkdir(parents=True, exist_ok=True)
@@ -198,6 +232,10 @@ def export_json(
     summary = {
         "simulation_label": "SYNTHETIC SIMULATION",
         "parameter_label": "ASSUMPTION",
+            "break_even_accuracy_shift": (
+        None if break_even_accuracy is None
+        else round(break_even_accuracy, 4)
+    ),
         "seed": SEED,
         "simulation_count": N_SIMULATIONS,
         "setup_cost": SETUP_COST,
@@ -244,7 +282,8 @@ def main() -> None:
 
     monte_carlo = run_monte_carlo(tasks)
     sensitivity = run_sensitivity(tasks)
-    export_json(monte_carlo, sensitivity)
+    break_even_accuracy = calculate_break_even_accuracy(tasks)
+    export_json(monte_carlo, sensitivity, break_even_accuracy)
 
     values = monte_carlo["net_value_after_setup"]
 
