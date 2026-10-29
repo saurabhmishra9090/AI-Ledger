@@ -1,0 +1,251 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#470038">
+  <title>Analysis | AI LEDGER</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <a class="brand" href="index.html" aria-label="AI Ledger home">
+        <img class="brand-logo" src="assets/ai-ledger-logo.png" alt="">
+        <span class="brand-ai">AI</span>
+        <span class="brand-ledger">LEDGER</span>
+      </a>
+
+      <div class="sidebar-caption">WORKSPACE</div>
+      <nav class="nav-list" aria-label="Main navigation">
+  <a class="nav-link" href="index.html">
+    <span class="nav-icon">◇</span>
+    <span>Overview</span>
+  </a>
+
+  <a class="nav-link active" href="analysis.html" aria-current="page">
+    <span class="nav-icon">▥</span>
+    <span>Analysis</span>
+  </a>
+
+  <a class="nav-link" href="category-triage.html">
+    <span class="nav-icon">▦</span>
+    <span>Category Triage</span>
+  </a>
+
+  <a class="nav-link" href="task-ledger.html">
+    <span class="nav-icon">▤</span>
+    <span>Task Ledger</span>
+  </a>
+
+  <a class="nav-link" href="assumptions.html">
+    <span class="nav-icon">⚙</span>
+    <span>Assumptions</span>
+  </a>
+
+  <a class="nav-link" href="ai-assistant.html">
+    <span class="nav-icon">✳</span>
+    <span>AI Assistant</span>
+  </a>
+</nav>
+
+      <div class="sidebar-footer">Simulation engine ready</div>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <div class="breadcrumb">
+          <a href="index.html">Workspace</a>
+          <span class="breadcrumb-separator">/</span>
+          <span>Analysis</span>
+        </div>
+        <span class="environment-label">
+          <span class="status-dot"></span>
+          SYNTHETIC SIMULATION
+        </span>
+      </header>
+
+      <section class="dashboard-section">
+        <div class="section-heading">
+          <div>
+            <div class="eyebrow">FINANCIAL INTELLIGENCE</div>
+            <h1 class="section-title">Analysis</h1>
+          </div>
+          <span class="data-badge">
+            <span class="status-dot"></span>
+            ASSUMPTION-BASED MODEL
+          </span>
+        </div>
+
+        <p>Understand where workflow costs originate, how outcomes vary, and which assumptions have the greatest financial impact.</p>
+
+        <div class="kpi-grid">
+          <article class="card kpi-card">
+            <div class="kpi-topline">
+              <span class="kpi-label">AI Usage Cost</span>
+            </div>
+            <div class="kpi-value" id="analysis-ai-cost">—</div>
+            <div class="kpi-note">Total simulated AI usage</div>
+          </article>
+
+          <article class="card kpi-card">
+            <div class="kpi-topline">
+              <span class="kpi-label">Human Review Cost</span>
+            </div>
+            <div class="kpi-value pink" id="analysis-review-cost">—</div>
+            <div class="kpi-note">Review effort across tasks</div>
+          </article>
+
+          <article class="card kpi-card">
+            <div class="kpi-topline">
+              <span class="kpi-label">Rework Cost</span>
+            </div>
+            <div class="kpi-value coral" id="analysis-rework-cost">—</div>
+            <div class="kpi-note">Cost of correcting work</div>
+          </article>
+
+          <article class="card kpi-card">
+            <div class="kpi-topline">
+              <span class="kpi-label">Escaped Error Cost</span>
+            </div>
+            <div class="kpi-value" id="analysis-error-cost">—</div>
+            <div class="kpi-note">Estimated downstream error cost</div>
+          </article>
+        </div>
+
+        <div class="chart-grid">
+          <article class="card chart-card">
+            <h3>Cost Composition</h3>
+            <p>Breakdown of modeled workflow costs</p>
+            <div id="analysis-cost-chart" class="chart-container">
+              <p>Loading cost data…</p>
+            </div>
+          </article>
+
+          <article class="card chart-card">
+            <h3>Sensitivity Analysis</h3>
+            <p>How alternative assumptions affect net value</p>
+            <div id="analysis-sensitivity-chart" class="chart-container">
+              <p>Loading sensitivity data…</p>
+            </div>
+          </article>
+        </div>
+
+        <article class="card chart-card">
+          <h3>Monte Carlo Outcome Distribution</h3>
+          <p>Simulated net value after setup cost</p>
+          <div id="analysis-monte-carlo-chart" class="chart-container">
+            <p>Loading simulation data…</p>
+          </div>
+        </article>
+
+        <p class="kpi-note">
+          All values are synthetic estimates generated under stated assumptions;
+          they are not verified real-world business results.
+        </p>
+
+        <a class="button" href="index.html">← Back to Overview</a>
+      </section>
+    </main>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="charts.js"></script>
+  <script src="app.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", async () => {
+      const money = value =>
+        new Intl.NumberFormat("en-IN", {
+          style: "currency",
+          currency: "INR",
+          maximumFractionDigits: 0
+        }).format(Number(value) || 0);
+
+      async function loadExport(filename) {
+        const response = await fetch(`EXPORTS/${filename}`, {
+          cache: "no-store"
+        });
+        if (!response.ok) {
+          throw new Error(`${filename}: HTTP ${response.status}`);
+        }
+        return response.json();
+      }
+
+      try {
+        const [costs, sensitivity, monteCarlo] = await Promise.all([
+          loadExport("cost_breakdown.json"),
+          loadExport("sensitivity.json"),
+          loadExport("monte_carlo.json")
+        ]);
+
+        const costRows = Array.isArray(costs) ? costs : [];
+        const findCost = (...keys) => {
+          const row = costRows.find(item =>
+            keys.some(key =>
+              String(item.category ?? item.cost_type ?? item.component ?? "")
+                .toLowerCase().includes(key)
+            )
+          );
+          return row ? Number(row.cost ?? row.total_cost ?? row.value ?? 0) : null;
+        };
+
+        const setMoney = (id, value) => {
+          const el = document.getElementById(id);
+          if (el && value !== null && Number.isFinite(value)) {
+            el.textContent = money(value);
+          }
+        };
+
+        setMoney("analysis-ai-cost", findCost("ai usage", "ai_usage"));
+        setMoney("analysis-review-cost", findCost("review"));
+        setMoney("analysis-rework-cost", findCost("rework"));
+        setMoney("analysis-error-cost", findCost("escaped errors", "error"));
+
+        const costTarget = document.getElementById("analysis-cost-chart");
+        const sensitivityTarget = document.getElementById("analysis-sensitivity-chart");
+        const monteCarloTarget = document.getElementById("analysis-monte-carlo-chart");
+
+        
+const charts = window.AILedgerCharts;
+
+if (!charts) {
+  throw new Error("Chart functions are unavailable. Check charts.js.");
+}
+
+if (costTarget) {
+  charts.renderCostBreakdown(costRows);
+}
+
+const sensitivityRows = Array.isArray(sensitivity)
+  ? sensitivity
+  : [];
+
+if (sensitivityTarget) {
+  charts.renderSensitivity(sensitivityRows);
+}
+
+const simulationRows = Array.isArray(monteCarlo)
+  ? monteCarlo
+  : [];
+
+if (monteCarloTarget) {
+  charts.renderMonteCarlo(simulationRows);
+}
+
+      } catch (error) {
+        console.error("Analysis page data loading failed:", error);
+        for (const id of [
+          "analysis-cost-chart",
+          "analysis-sensitivity-chart",
+          "analysis-monte-carlo-chart"
+        ]) {
+          const el = document.getElementById(id);
+          if (el) el.textContent = "Data could not be loaded. Check the server and export files.";
+        }
+      }
+    });
+  </script>
+</body>
+</html>

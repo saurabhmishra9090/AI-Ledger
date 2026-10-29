@@ -1,0 +1,198 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#470038">
+  <title>Category Triage | AI LEDGER</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <a class="brand" href="index.html" aria-label="AI Ledger home">
+        <img class="brand-logo" src="assets/ai-ledger-logo.png" alt="">
+        <span class="brand-ai">AI</span>
+        <span class="brand-ledger">LEDGER</span>
+      </a>
+
+      <div class="sidebar-caption">WORKSPACE</div>
+      <nav class="nav-list" aria-label="Main navigation">
+        <a class="nav-link" href="index.html">◇ <span>Overview</span></a>
+        <a class="nav-link" href="analysis.html">▥ <span>Analysis</span></a>
+        <a class="nav-link active" href="category-triage.html" aria-current="page">▦ <span>Category Triage</span></a>
+        <a class="nav-link" href="task-ledger.html">▤ <span>Task Ledger</span></a>
+        <a class="nav-link" href="assumptions.html">⚙ <span>Assumptions</span></a>
+        <a class="nav-link" href="ai-assistant.html">✳ <span>AI Assistant</span></a>
+      </nav>
+
+      <div class="sidebar-footer">Simulation engine ready</div>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <div class="breadcrumb">
+          <a href="index.html">Workspace</a>
+          <span class="breadcrumb-separator">/</span>
+          <span>Category Triage</span>
+        </div>
+        <span class="environment-label">
+          <span class="status-dot"></span>
+          SYNTHETIC SIMULATION
+        </span>
+      </header>
+
+      <section class="dashboard-section">
+        <div class="section-heading">
+          <div>
+            <div class="eyebrow">OPERATIONAL INTELLIGENCE</div>
+            <h1 class="section-title">Category Triage</h1>
+          </div>
+          <span class="data-badge">ASSUMPTION-BASED MODEL</span>
+        </div>
+
+        <p>Compare workflow categories, identify high-cost areas, and prioritize where human review or automation needs attention.</p>
+
+        <div class="card chart-card">
+          <div class="section-heading">
+            <div>
+              <h3>Category Performance</h3>
+              <p>Category-level financial and operational metrics</p>
+            </div>
+            <button class="button" id="export-categories" type="button">Export CSV</button>
+          </div>
+
+          <div class="table-wrapper">
+            <table id="category-table">
+              <thead>
+                <tr>
+                  <th>Category</th>
+                    <th>Tasks</th>
+                    <th>Net / Task</th>
+                    <th>Escaped Errors</th>
+                    <th>Review Burden</th>
+                    <th>Model Verdict</th>
+                </tr>
+              </thead>
+              <tbody id="category-table-body">
+                <tr><td colspan="7">Loading category data…</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <p class="kpi-note">
+          Values are synthetic estimates generated under stated assumptions,
+          not verified real-world business results.
+        </p>
+
+        <a class="button" href="index.html">← Back to Overview</a>
+      </section>
+    </main>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    let exportRows = [];
+
+    const money = value => new Intl.NumberFormat("en-IN", {
+      style: "currency",
+      currency: "INR",
+      maximumFractionDigits: 0
+    }).format(Number(value) || 0);
+
+    function getValue(row, keys) {
+      const key = keys.find(name => row[name] !== undefined && row[name] !== null);
+      return key ? row[key] : 0;
+    }
+
+    function renderCategories(rows) {
+      const body = document.getElementById("category-table-body");
+      body.replaceChildren();
+
+      if (!rows.length) {
+        body.innerHTML = '<tr><td colspan="7">No category rows found in the export.</td></tr>';
+        return;
+      }
+
+      for (const row of rows) {
+       const tasks = Number(getValue(row, ["tasks", "task_count", "total_tasks"]));
+    const netPerTask = Number(getValue(row, ["net_per_task"]));
+    const escapedErrorRate = Number(getValue(row, ["escaped_error_rate"]));
+    const reviewBurden = Number(getValue(row, ["review_burden"]));
+
+const values = [
+    getValue(row, ["category", "task_category", "name"]),
+    tasks.toLocaleString("en-IN"),
+    money(netPerTask),
+    (escapedErrorRate * 100).toFixed(2) + "%",
+    (reviewBurden * 100).toFixed(2) + "%",
+    getValue(row, ["verdict"]) || "REVIEW"
+];
+
+        const tr = document.createElement("tr");
+        for (const value of values) {
+          const td = document.createElement("td");
+          td.textContent = String(value);
+          tr.appendChild(td);
+        }
+        body.appendChild(tr);
+      }
+    }
+
+    async function loadCategories() {
+      const body = document.getElementById("category-table-body");
+
+      try {
+        const response = await fetch("EXPORTS/category_summary.json", {
+          cache: "no-store"
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+
+        const data = await response.json();
+        exportRows = Array.isArray(data)
+          ? data
+          : (Array.isArray(data.categories) ? data.categories : []);
+
+        renderCategories(exportRows);
+      } catch (error) {
+        console.error("Category data loading failed:", error);
+        body.innerHTML =
+          '<tr><td colspan="7">Could not load category data. Check the export file and local server.</td></tr>';
+      }
+    }
+
+    document.getElementById("export-categories").addEventListener("click", () => {
+      if (!exportRows.length) {
+        alert("No category data is available to export yet.");
+        return;
+      }
+
+      const columns = [...new Set(exportRows.flatMap(row => Object.keys(row)))];
+      const escapeCsv = value => {
+        const text = String(value ?? "");
+        return `"${text.replace(/"/g, '""')}"`;
+      };
+
+      const csv = [
+        columns.map(escapeCsv).join(","),
+        ...exportRows.map(row => columns.map(column => escapeCsv(row[column])).join(","))
+      ].join("\r\n");
+
+      const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8;" }));
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "ai-ledger-category-triage.csv";
+      link.click();
+      URL.revokeObjectURL(url);
+    });
+
+    loadCategories();
+  </script>
+</body>
+</html>

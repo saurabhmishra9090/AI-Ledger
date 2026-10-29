@@ -204,42 +204,60 @@ function showToast(message) {
     }
   }
 
-  function renderKPIs() {
-    const simulation = state.simulation;
-    const distribution = simulation.net_value_after_setup;
+  
+function renderKPIs() {
+  const simulation = state.simulation;
+  const distribution = simulation.net_value_after_setup;
 
-    $("#kpi-net-value").textContent =
-      money(distribution.p50);
+  const netValueElement = $("#kpi-net-value");
+  if (netValueElement) {
+    netValueElement.textContent = money(distribution.p50);
+  }
 
-    // Break-even accuracy is not present in the verified exports.
-   const breakEvenShift = Number(state.simulation.break_even_accuracy_shift);
+  // Break-even accuracy: show only when a verified value exists.
+  const breakEvenElement = $("#kpi-break-even");
+  const breakEvenShift = Number(simulation.break_even_accuracy_shift);
 
-    $("#kpi-break-even").textContent =
-    Number.isFinite(breakEvenShift)
+  if (breakEvenElement) {
+    breakEvenElement.textContent =
+      Number.isFinite(breakEvenShift) &&
+      simulation.break_even_accuracy_shift !== null &&
+      simulation.break_even_accuracy_shift !== ""
         ? `${(breakEvenShift * 100).toFixed(2)} pp`
         : "N/A";
-    const baselineTotal = state.ledger.reduce(
-      (sum, row) => sum + Number(row.baseline_cost || 0), 0
-    );
+  }
 
-    const reviewTotal = state.ledger.reduce(
-      (sum, row) => sum + Number(row.review_cost || 0), 0
-    );
+  const baselineTotal = state.ledger.reduce(
+    (sum, row) => sum + Number(row.baseline_cost || 0),
+    0
+  );
 
-    $("#kpi-review-burden").textContent =
+  const reviewTotal = state.ledger.reduce(
+    (sum, row) => sum + Number(row.review_cost || 0),
+    0
+  );
+
+  const reviewBurdenElement = $("#kpi-review-burden");
+  if (reviewBurdenElement) {
+    reviewBurdenElement.textContent =
       baselineTotal > 0
         ? percent(reviewTotal / baselineTotal)
         : "N/A";
+  }
 
-    const escapedTasks = state.ledger.filter(
-      row => Number(row.error_cost || 0) > 0
-    ).length;
+  const escapedTasks = state.ledger.filter(
+    row => Number(row.error_cost || 0) > 0
+  ).length;
 
-    $("#kpi-error-rate").textContent =
+  const errorRateElement = $("#kpi-error-rate");
+  if (errorRateElement) {
+    errorRateElement.textContent =
       state.ledger.length > 0
         ? percent(escapedTasks / state.ledger.length)
         : "N/A";
   }
+}
+
 
   function renderCategoryTable() {
     const tbody = $("#category-table-body");
