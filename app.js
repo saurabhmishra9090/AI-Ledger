@@ -46,17 +46,23 @@ const AILedgerApp = (() => {
     })[char]);
   }
 
-  function showToast(message) {
-    const toast = $("#toast");
-    if (!toast) return;
+  
+let toastTimer;
 
-    toast.textContent = message;
-    toast.classList.add("visible");
+function showToast(message) {
+  const toast = $("#toast");
+  if (!toast) return;
 
-    // Hide on the next user interaction or when another
-    // message replaces this one. No timer is required.
-    toast.setAttribute("data-message", message);
-  }
+  toast.textContent = message;
+  toast.classList.add("visible");
+
+  clearTimeout(toastTimer);
+
+  toastTimer = setTimeout(() => {
+    toast.classList.remove("visible");
+  }, 3000);
+}
+
 
   async function loadJSON(filename) {
     const response = await fetch(`exports/${filename}`, {
@@ -120,6 +126,9 @@ const AILedgerApp = (() => {
 
     state.loading = true;
     showToast("Loading exported analytics data…");
+    const refreshButton = $("#refresh-data");
+    refreshButton?.classList.add("is-loading");
+    refreshButton?.setAttribute("disabled", "");
 
     try {
       const [
@@ -165,6 +174,8 @@ const AILedgerApp = (() => {
       renderLoadError(error.message);
     } finally {
       state.loading = false;
+      refreshButton?.classList.remove("is-loading");
+      refreshButton?.removeAttribute("disabled");
     }
   }
 

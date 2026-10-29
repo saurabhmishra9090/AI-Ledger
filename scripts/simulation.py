@@ -205,7 +205,7 @@ def calculate_break_even_accuracy(tasks: pd.DataFrame) -> float | None:
         mid = (low + high) / 2.0
         mid_value = net_value_at_shift(mid)
 
-        if abs(mid_value) < 0.01:
+        if abs(mid_value) < 0.000001:
             return mid
 
         if low_value * mid_value <= 0:
@@ -234,7 +234,7 @@ def export_json(
         "parameter_label": "ASSUMPTION",
             "break_even_accuracy_shift": (
         None if break_even_accuracy is None
-        else round(break_even_accuracy, 4)
+        else round(break_even_accuracy, 8)
     ),
         "seed": SEED,
         "simulation_count": N_SIMULATIONS,
