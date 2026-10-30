@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,245 +6,1231 @@
   <meta name="theme-color" content="#470038">
   <title>Analysis | AI LEDGER</title>
   <link rel="stylesheet" href="styles.css">
+
+  <style>
+    .analysis-hero {
+      padding: 30px;
+      margin-bottom: 24px;
+      border: 1px solid rgba(232,75,216,.35);
+      border-radius: 18px;
+      min-height: 270px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      background:
+        linear-gradient(90deg, rgba(42,8,40,.96) 0%, rgba(42,8,40,.82) 48%, rgba(42,8,40,.20) 100%),
+        url("assets/financial-analysis-hero.png") center right / cover no-repeat,
+        linear-gradient(120deg,#2A0828,#470038);
+      box-shadow: 0 12px 35px rgba(0,0,0,.16);
+    }
+
+    .analysis-hero-label {
+      color: #E84BD8;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 2px;
+    }
+
+    .analysis-hero h1 {
+      margin: 12px 0;
+      font-size: clamp(25px,3vw,36px);
+    }
+
+    .analysis-hero p {
+      max-width: 650px;
+      color: #d8c4d5;
+      line-height: 1.7;
+    }
+
+    .analysis-kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 16px;
+      margin: 0 0 24px;
+    }
+
+    .analysis-kpi {
+      min-width: 0;
+      min-height: 205px;
+      padding: 26px 27px 20px;
+      position: relative;
+      overflow: hidden;
+      border: 1px solid var(--kpi-accent, rgba(232,75,216,.5));
+      border-radius: 19px;
+      background: linear-gradient(145deg, rgba(75,12,68,.94), rgba(39,8,39,.98));
+      box-shadow: 0 8px 26px rgba(0,0,0,.14);
+    }
+
+    .analysis-kpi-icon {
+      width: 54px;
+      height: 54px;
+      display: grid;
+      place-items: center;
+      margin-bottom: 27px;
+      border: 1px solid var(--kpi-accent);
+      border-radius: 15px;
+      color: var(--kpi-accent);
+      background: color-mix(in srgb, var(--kpi-accent) 17%, transparent);
+      font-size: 27px;
+      font-weight: 800;
+    }
+
+    .analysis-kpi-label {
+      display: block;
+      color: #cdb8ca;
+      font-size: 12px;
+      margin-bottom: 12px;
+    }
+
+    .analysis-kpi-value {
+      display: block;
+      color: var(--kpi-accent);
+      font-size: clamp(25px, 2.2vw, 34px);
+      line-height: 1.15;
+      font-weight: 800;
+      letter-spacing: -.6px;
+      margin-bottom: 12px;
+    }
+
+    .analysis-kpi-note {
+      color: #ead8e8;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .analysis-kpi-spark {
+      position: absolute;
+      right: 24px;
+      bottom: 14px;
+      height: 34px;
+      display: flex;
+      align-items: end;
+      gap: 6px;
+      opacity: .95;
+    }
+
+    .analysis-kpi-spark span {
+      width: 7px;
+      border-radius: 5px 5px 0 0;
+      background: var(--kpi-accent);
+    }
+
+    .analysis-kpi-spark span:nth-child(1) { height: 14px; }
+    .analysis-kpi-spark span:nth-child(2) { height: 22px; }
+    .analysis-kpi-spark span:nth-child(3) { height: 29px; }
+    .analysis-kpi-spark span:nth-child(4) { height: 18px; }
+    .analysis-kpi-spark span:nth-child(5) { height: 34px; }
+    .analysis-kpi-spark span:nth-child(6) { height: 25px; }
+
+    .analysis-grid {
+      display: grid;
+      grid-template-columns: repeat(2,minmax(0,1fr));
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+
+    .analysis-card {
+      min-width: 0;
+      padding: 24px;
+      border: 1px solid rgba(232,75,216,.24);
+      border-radius: 17px;
+      background: linear-gradient(145deg,#310c30,#260823);
+      overflow: hidden;
+    }
+
+    .analysis-card h3 {
+      margin: 0 0 8px;
+      font-size: 17px;
+    }
+
+    .analysis-card > p {
+      margin: 0 0 20px;
+      color: #cdb8ca;
+      font-size: 13px;
+    }
+
+    .analysis-card.full {
+      grid-column: 1 / -1;
+    }
+
+    .analysis-chart {
+      width: 100%;
+      min-height: 240px;
+      height: 240px;
+      position: relative;
+    }
+
+    .analysis-chart svg {
+      width: 100%;
+      height: 240px;
+      display: block;
+      overflow: visible;
+    }
+
+    .analysis-chart text {
+      font-family: inherit;
+    }
+
+    /* Category matrix: readable labels and interactive bubble hover */
+    .analysis-chart .category-point {
+      cursor: pointer;
+      outline: none;
+    }
+
+    .analysis-chart .category-point circle {
+      transform-box: fill-box;
+      transform-origin: center;
+      transition: transform .2s ease, filter .2s ease, fill-opacity .2s ease;
+    }
+
+    .analysis-chart .category-point:hover circle,
+    .analysis-chart .category-point:focus circle {
+      transform: translateY(-4px) scale(1.12);
+      filter: drop-shadow(0 0 7px #E84BD8) drop-shadow(0 0 13px rgba(232,75,216,.55));
+      fill-opacity: 1;
+    }
+
+    .analysis-chart .category-point text {
+      font-size: 13px;
+      font-weight: 600;
+      pointer-events: none;
+      transition: fill .2s ease;
+    }
+
+    .analysis-chart .category-point:hover text,
+    .analysis-chart .category-point:focus text {
+      fill: #FFFFFF;
+    }
+
+    .analysis-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-top: 14px;
+      color: #d9c7d7;
+      font-size: 12px;
+    }
+
+    .legend-dot {
+      display: inline-block;
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      margin-right: 6px;
+    }
+
+    .analysis-insight {
+      padding: 15px 17px;
+      margin-top: 15px;
+      border-radius: 11px;
+      border: 1px solid rgba(232,75,216,.2);
+      background: rgba(90,18,79,.28);
+      color: #ead8e8;
+      font-size: 13px;
+      line-height: 1.65;
+    }
+
+    .analysis-table-wrap {
+      overflow-x: auto;
+    }
+
+    .analysis-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      min-width: 600px;
+    }
+
+    .analysis-table th,
+    .analysis-table td {
+      text-align: left;
+      padding: 13px 12px;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+
+    .analysis-table th {
+      color: #c9a9c6;
+      font-weight: 600;
+    }
+
+    .analysis-table td {
+      color: #f0e5ef;
+    }
+
+    .verdict {
+      display: inline-block;
+      padding: 5px 9px;
+      border-radius: 20px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .4px;
+    }
+
+    .verdict.automate {
+      color: #72e2bd;
+      background: rgba(65,190,145,.13);
+    }
+
+    .verdict.assist {
+      color: #ffc36d;
+      background: rgba(255,180,80,.13);
+    }
+
+    .analysis-status {
+      color: #c9a9c6;
+      font-size: 12px;
+      margin-top: 12px;
+    }
+
+    .analysis-back {
+      display: inline-block;
+      margin-top: 24px;
+      text-decoration: none;
+    }
+
+    @media(max-width:900px) {
+      .analysis-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .analysis-kpi-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .analysis-card.full {
+        grid-column: auto;
+      }
+    }
+
+    @media(max-width:600px) {
+      .analysis-card {
+        padding: 17px;
+      }
+
+      .analysis-kpi-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .analysis-kpi {
+        min-height: 185px;
+      }
+
+      .analysis-hero {
+        padding: 22px;
+      }
+
+      .analysis-chart {
+        min-height: 220px;
+      }
+    }
+    
+.scenario-bar {
+    cursor: pointer;
+    transform-box: fill-box;
+    transform-origin: center;
+    transition: filter 180ms ease, transform 180ms ease;
+}
+
+.scenario-bar:hover {
+    filter: drop-shadow(0 0 7px #E84BD8)
+            drop-shadow(0 0 13px rgba(232, 75, 216, 0.55));
+    transform: scaleY(1.18);
+}
+
+  </style>
 </head>
+
 <body>
-  <div class="app-shell">
-    <aside class="sidebar">
-      <a class="brand" href="index.html" aria-label="AI Ledger home">
-        <img class="brand-logo" src="assets/ai-ledger-logo.png" alt="">
-        <span class="brand-ai">AI</span>
-        <span class="brand-ledger">LEDGER</span>
+<div class="app-shell">
+
+  <aside class="sidebar">
+    <a class="brand" href="index.html" aria-label="AI Ledger home">
+      <img class="brand-logo" src="assets/ai-ledger-logo.png" alt="">
+      <span class="brand-ai">AI</span>
+      <span class="brand-ledger">LEDGER</span>
+    </a>
+
+    <div class="sidebar-caption">WORKSPACE</div>
+
+    <nav class="nav-list" aria-label="Main navigation">
+      <a class="nav-link" href="index.html">
+        <span class="nav-icon">◇</span>
+        <span>Overview</span>
       </a>
 
-      <div class="sidebar-caption">WORKSPACE</div>
-      <nav class="nav-list" aria-label="Main navigation">
-  <a class="nav-link" href="index.html">
-    <span class="nav-icon">◇</span>
-    <span>Overview</span>
-  </a>
+      <a class="nav-link active" href="analysis.html" aria-current="page">
+        <span class="nav-icon">▥</span>
+        <span>Analysis</span>
+      </a>
 
-  <a class="nav-link active" href="analysis.html" aria-current="page">
-    <span class="nav-icon">▥</span>
-    <span>Analysis</span>
-  </a>
+      <a class="nav-link" href="category-triage.html">
+        <span class="nav-icon">▦</span>
+        <span>Category Triage</span>
+      </a>
 
-  <a class="nav-link" href="category-triage.html">
-    <span class="nav-icon">▦</span>
-    <span>Category Triage</span>
-  </a>
+      <a class="nav-link" href="task-ledger.html">
+        <span class="nav-icon">▤</span>
+        <span>Task Ledger</span>
+      </a>
 
-  <a class="nav-link" href="task-ledger.html">
-    <span class="nav-icon">▤</span>
-    <span>Task Ledger</span>
-  </a>
+      <a class="nav-link" href="assumptions.html">
+        <span class="nav-icon">⚙</span>
+        <span>Assumptions</span>
+      </a>
 
-  <a class="nav-link" href="assumptions.html">
-    <span class="nav-icon">⚙</span>
-    <span>Assumptions</span>
-  </a>
+      <a class="nav-link" href="ai-assistant.html">
+        <span class="nav-icon">✳</span>
+        <span>AI Assistant</span>
+      </a>
+    </nav>
 
-  <a class="nav-link" href="ai-assistant.html">
-    <span class="nav-icon">✳</span>
-    <span>AI Assistant</span>
-  </a>
-</nav>
+    <div class="sidebar-footer">Simulation engine ready</div>
+  </aside>
 
-      <div class="sidebar-footer">Simulation engine ready</div>
-    </aside>
+  <main class="main-content">
 
-    <main class="main-content">
-      <header class="topbar">
-        <div class="breadcrumb">
-          <a href="index.html">Workspace</a>
-          <span class="breadcrumb-separator">/</span>
-          <span>Analysis</span>
-        </div>
-        <span class="environment-label">
-          <span class="status-dot"></span>
-          SYNTHETIC SIMULATION
-        </span>
-      </header>
+    <header class="topbar">
+      <div class="breadcrumb">
+        <a href="index.html">Workspace</a>
+        <span class="breadcrumb-separator">/</span>
+        <span>Analysis</span>
+      </div>
 
-      <section class="dashboard-section">
-        <div class="section-heading">
-          <div>
-            <div class="eyebrow">FINANCIAL INTELLIGENCE</div>
-            <h1 class="section-title">Analysis</h1>
-          </div>
-          <span class="data-badge">
-            <span class="status-dot"></span>
-            ASSUMPTION-BASED MODEL
-          </span>
-        </div>
+      <span class="environment-label">
+        <span class="status-dot"></span>
+        SYNTHETIC SIMULATION
+      </span>
+    </header>
 
-        <p>Understand where workflow costs originate, how outcomes vary, and which assumptions have the greatest financial impact.</p>
+    <section class="dashboard-section">
 
-        <div class="kpi-grid">
-          <article class="card kpi-card">
-            <div class="kpi-topline">
-              <span class="kpi-label">AI Usage Cost</span>
-            </div>
-            <div class="kpi-value" id="analysis-ai-cost">—</div>
-            <div class="kpi-note">Total simulated AI usage</div>
-          </article>
+      <div class="analysis-hero">
+        <span class="analysis-hero-label">FINANCIAL INTELLIGENCE</span>
+        <h1>Analysis &amp; Scenario Modeling</h1>
+        <p>
+          Investigate workflow profitability, compare financial
+          scenarios and understand the break-even point.
+        </p>
+      </div>
 
-          <article class="card kpi-card">
-            <div class="kpi-topline">
-              <span class="kpi-label">Human Review Cost</span>
-            </div>
-            <div class="kpi-value pink" id="analysis-review-cost">—</div>
-            <div class="kpi-note">Review effort across tasks</div>
-          </article>
-
-          <article class="card kpi-card">
-            <div class="kpi-topline">
-              <span class="kpi-label">Rework Cost</span>
-            </div>
-            <div class="kpi-value coral" id="analysis-rework-cost">—</div>
-            <div class="kpi-note">Cost of correcting work</div>
-          </article>
-
-          <article class="card kpi-card">
-            <div class="kpi-topline">
-              <span class="kpi-label">Escaped Error Cost</span>
-            </div>
-            <div class="kpi-value" id="analysis-error-cost">—</div>
-            <div class="kpi-note">Estimated downstream error cost</div>
-          </article>
-        </div>
-
-        <div class="chart-grid">
-          <article class="card chart-card">
-            <h3>Cost Composition</h3>
-            <p>Breakdown of modeled workflow costs</p>
-            <div id="analysis-cost-chart" class="chart-container">
-              <p>Loading cost data…</p>
-            </div>
-          </article>
-
-          <article class="card chart-card">
-            <h3>Sensitivity Analysis</h3>
-            <p>How alternative assumptions affect net value</p>
-            <div id="analysis-sensitivity-chart" class="chart-container">
-              <p>Loading sensitivity data…</p>
-            </div>
-          </article>
-        </div>
-
-        <article class="card chart-card">
-          <h3>Monte Carlo Outcome Distribution</h3>
-          <p>Simulated net value after setup cost</p>
-          <div id="analysis-monte-carlo-chart" class="chart-container">
-            <p>Loading simulation data…</p>
-          </div>
+      <div class="analysis-kpi-grid" aria-label="Analysis cost summary">
+        <article class="analysis-kpi" style="--kpi-accent:#20C9F2">
+          <div class="analysis-kpi-icon">AI</div>
+          <span class="analysis-kpi-label">AI Usage Cost</span>
+          <strong class="analysis-kpi-value" id="analysis-ai-cost">Loading…</strong>
+          <div class="analysis-kpi-note">Total simulated AI usage</div>
+          <div class="analysis-kpi-spark" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span></div>
         </article>
 
-        <p class="kpi-note">
-          All values are synthetic estimates generated under stated assumptions;
-          they are not verified real-world business results.
-        </p>
+        <article class="analysis-kpi" style="--kpi-accent:#E84BD8">
+          <div class="analysis-kpi-icon">₹</div>
+          <span class="analysis-kpi-label">Human Review Cost</span>
+          <strong class="analysis-kpi-value" id="analysis-review-cost">Loading…</strong>
+          <div class="analysis-kpi-note">Review effort across tasks</div>
+          <div class="analysis-kpi-spark" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+        </article>
 
-        <a class="button" href="index.html">← Back to Overview</a>
-      </section>
-    </main>
-  </div>
+        <article class="analysis-kpi" style="--kpi-accent:#FF9B35">
+          <div class="analysis-kpi-icon">↻</div>
+          <span class="analysis-kpi-label">Rework Cost</span>
+          <strong class="analysis-kpi-value" id="analysis-rework-cost">Loading…</strong>
+          <div class="analysis-kpi-note">Cost of correcting work</div>
+          <div class="analysis-kpi-spark" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+        </article>
 
-  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+        <article class="analysis-kpi" style="--kpi-accent:#A879FF">
+          <div class="analysis-kpi-icon">!</div>
+          <span class="analysis-kpi-label">Escaped Error Cost</span>
+          <strong class="analysis-kpi-value" id="analysis-error-cost">Loading…</strong>
+          <div class="analysis-kpi-note">Estimated downstream error cost</div>
+          <div class="analysis-kpi-spark" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+        </article>
+      </div>
 
-  <script src="charts.js"></script>
-  <script src="app.js"></script>
-  <script>
-    document.addEventListener("DOMContentLoaded", async () => {
-      const money = value =>
-        new Intl.NumberFormat("en-IN", {
-          style: "currency",
-          currency: "INR",
-          maximumFractionDigits: 0
-        }).format(Number(value) || 0);
+      <div class="analysis-grid">
 
-      async function loadExport(filename) {
-        const response = await fetch(`EXPORTS/${filename}`, {
-          cache: "no-store"
-        });
-        if (!response.ok) {
-          throw new Error(`${filename}: HTTP ${response.status}`);
-        }
-        return response.json();
+        <article class="analysis-card">
+          <h3>Value Waterfall Analysis</h3>
+          <p>How operating value changes after setup investment</p>
+          <div id="waterfall-chart" class="analysis-chart">Loading financial data...</div>
+          <div id="waterfall-insight" class="analysis-insight">Calculating financial bridge...</div>
+        </article>
+
+        <article class="analysis-card">
+          <h3>Category Profitability Matrix</h3>
+          <p>Compare net value per task against escaped error rate</p>
+          <div id="category-matrix-chart" class="analysis-chart">Loading category data...</div>
+          <div class="analysis-legend">
+            <span><i class="legend-dot" style="background:#E84BD8"></i>Net value per task</span>
+            <span><i class="legend-dot" style="background:#F49CEB"></i>Bubble size = task volume</span>
+          </div>
+          <div id="category-insight" class="analysis-insight">Calculating category insights...</div>
+        </article>
+
+       <article class="analysis-card">
+          <h3>Scenario Comparison</h3>
+          <p>Compare net value after setup under different assumptions</p>
+          <div id="scenario-chart" class="analysis-chart">Loading scenario data...</div>
+          
+<div class="analysis-legend scenario-legend">
+    <span>
+        <i class="legend-dot" style="background:#52B99A"></i>
+        Base case
+    </span>
+    <span>
+        <i class="legend-dot" style="background:#E84BD8"></i>
+        Alternative scenarios
+    </span>
+</div>
+
+          <div id="scenario-insight" class="analysis-insight">Comparing scenarios...</div>
+        </article>
+
+       <article class="analysis-card">
+          <h3>Break-even Analysis</h3>
+          <p>Track cumulative net value and identify when the model recovers setup cost</p>
+          <div id="break-even-chart" class="analysis-chart">Loading cumulative payback data...</div>
+          <div id="break-even-insight" class="analysis-insight">Calculating break-even point...</div>
+        </article>
+
+      </div>
+
+      <p class="analysis-status">
+        All values are synthetic estimates generated under stated
+        assumptions. They are not verified real-world business results.
+      </p>
+
+      <a class="button analysis-back" href="index.html">← Back to Overview</a>
+
+    </section>
+  </main>
+</div>
+<script>
+document.addEventListener("DOMContentLoaded", async () => {
+      const $ = id => document.getElementById(id);
+
+  const money = value =>
+    "₹" + Number(value).toLocaleString("en-IN", {
+      maximumFractionDigits: 0
+    });
+
+  const percent = value =>
+    (Number(value) * 100).toFixed(2) + "%";
+
+  const number = value =>
+    Number(value).toLocaleString("en-IN");
+
+  async function loadExport(filename) {
+    const response = await fetch("EXPORTS/" + filename, {
+      cache: "no-store"
+    });
+
+    if (!response.ok) {
+      throw new Error(filename + " returned HTTP " + response.status);
+    }
+
+    return response.json();
+  }
+
+  function showError(id, message) {
+    const element = $(id);
+    if (element) element.textContent = message;
+  }
+
+  function svgWrap(content, viewBox = "0 0 700 330") {
+    return `
+      <svg viewBox="${viewBox}" role="img" aria-label="Financial analysis chart"
+           xmlns="http://www.w3.org/2000/svg">
+        ${content}
+      </svg>
+    `;
+  }
+  
+function svgwrap(content, viewBox = "0 0 700 330") {
+    return `
+        <svg
+            viewBox="${viewBox}"
+            role="img"
+            aria-label="Financial analysis chart"
+            xmlns="http://www.w3.org/2000/svg"
+        >
+            ${content}
+        </svg>
+    `;
+}
+
+
+  // --------------------------------------------------
+  // 1. VALUE WATERFALL ANALYSIS
+  // --------------------------------------------------
+
+  function renderWaterfall(scenarios) {
+    const base = scenarios.find(row => row.scenario === "Base case");
+
+    if (!base) throw new Error("Base case missing from sensitivity data.");
+
+    const operating = Number(base.operating_net_value);
+    const finalValue = Number(base.net_value_after_setup);
+    const setupCost = operating - finalValue;
+
+    if (![operating, finalValue, setupCost].every(Number.isFinite)) {
+      throw new Error("Invalid waterfall values.");
+    }
+
+    const values = [
+      { label: "Operating net", value: operating, color: "#52B99A" },
+      { label: "Setup cost", value: -setupCost, color: "#F47C8A" },
+      { label: "Net after setup", value: finalValue, color: "#E84BD8" }
+    ];
+
+    const max = operating * 1.12;
+    const chartTop = 35;
+    const chartBottom = 245;
+    const chartHeight = chartBottom - chartTop;
+    const barWidth = 115;
+    const positions = [95, 290, 485];
+
+    let content = `
+      <line x1="45" y1="${chartBottom}" x2="655" y2="${chartBottom}"
+        stroke="#8C6A89" stroke-dasharray="4 4"/>
+    `;
+
+    values.forEach((item, index) => {
+      const height = Math.abs(item.value) / max * chartHeight;
+      const x = positions[index];
+      const y = chartBottom - height;
+
+      content += `
+        <rect x="${x}" y="${y}" width="${barWidth}" height="${height}"
+          rx="7" fill="${item.color}">
+          <title>${item.label}: ${money(item.value)}</title>
+        </rect>
+
+        <text x="${x + barWidth/2}" y="${Math.max(y - 10, 20)}"
+          fill="#F5EAF4" font-size="16" font-weight="600"
+          text-anchor="middle">
+          ${money(item.value)}
+        </text>
+
+        <text x="${x + barWidth/2}" y="270"
+          fill="#D8C3D6" font-size="18" text-anchor="middle">
+          ${item.label}
+        </text>
+      `;
+
+      if (index === 0) {
+        content += `
+          <line x1="${x + barWidth}" y1="${y}" x2="290" y2="${y}"
+            stroke="#B98DB5" stroke-dasharray="4 4"/>
+        `;
       }
 
-      try {
-        const [costs, sensitivity, monteCarlo] = await Promise.all([
-          loadExport("cost_breakdown.json"),
-          loadExport("sensitivity.json"),
-          loadExport("monte_carlo.json")
-        ]);
+      if (index === 1) {
+        const afterSetupY = chartBottom - finalValue / max * chartHeight;
 
-        const costRows = Array.isArray(costs) ? costs : [];
-        const findCost = (...keys) => {
-          const row = costRows.find(item =>
-            keys.some(key =>
-              String(item.category ?? item.cost_type ?? item.component ?? "")
-                .toLowerCase().includes(key)
-            )
-          );
-          return row ? Number(row.cost ?? row.total_cost ?? row.value ?? 0) : null;
-        };
-
-        const setMoney = (id, value) => {
-          const el = document.getElementById(id);
-          if (el && value !== null && Number.isFinite(value)) {
-            el.textContent = money(value);
-          }
-        };
-
-        setMoney("analysis-ai-cost", findCost("ai usage", "ai_usage"));
-        setMoney("analysis-review-cost", findCost("review"));
-        setMoney("analysis-rework-cost", findCost("rework"));
-        setMoney("analysis-error-cost", findCost("escaped errors", "error"));
-
-        const costTarget = document.getElementById("analysis-cost-chart");
-        const sensitivityTarget = document.getElementById("analysis-sensitivity-chart");
-        const monteCarloTarget = document.getElementById("analysis-monte-carlo-chart");
-
-        
-const charts = window.AILedgerCharts;
-
-if (!charts) {
-  throw new Error("Chart functions are unavailable. Check charts.js.");
-}
-
-if (costTarget) {
-  charts.renderCostBreakdown(costRows);
-}
-
-const sensitivityRows = Array.isArray(sensitivity)
-  ? sensitivity
-  : [];
-
-if (sensitivityTarget) {
-  charts.renderSensitivity(sensitivityRows);
-}
-
-const simulationRows = Array.isArray(monteCarlo)
-  ? monteCarlo
-  : [];
-
-if (monteCarloTarget) {
-  charts.renderMonteCarlo(simulationRows);
-}
-
-      } catch (error) {
-        console.error("Analysis page data loading failed:", error);
-        for (const id of [
-          "analysis-cost-chart",
-          "analysis-sensitivity-chart",
-          "analysis-monte-carlo-chart"
-        ]) {
-          const el = document.getElementById(id);
-          if (el) el.textContent = "Data could not be loaded. Check the server and export files.";
-        }
+        content += `
+          <line x1="${x + barWidth}" y1="${afterSetupY}"
+            x2="485" y2="${afterSetupY}"
+            stroke="#B98DB5" stroke-dasharray="4 4"/>
+        `;
       }
     });
-  </script>
+
+    $("waterfall-chart").innerHTML = svgWrap(content);
+
+    $("waterfall-insight").textContent =
+      `The model starts with ${money(operating)} in operating net value. ` +
+      `After deducting ${money(setupCost)} in setup investment, ` +
+      `the estimated net value is ${money(finalValue)}.`;
+  }
+
+  // --------------------------------------------------
+  // 2. CATEGORY PROFITABILITY MATRIX
+  // --------------------------------------------------
+
+  function renderCategoryMatrix(rows) {
+    if (!Array.isArray(rows) || !rows.length) {
+      throw new Error("Category summary is empty.");
+    }
+
+    const valid = rows.filter(row =>
+      Number.isFinite(Number(row.net_per_task)) &&
+      Number.isFinite(Number(row.escaped_error_rate)) &&
+      Number.isFinite(Number(row.tasks))
+    );
+
+    if (!valid.length) {
+      throw new Error("No valid category records.");
+    }
+
+    const left = 75;
+    const right = 650;
+  const top = 65;
+    const bottom = 250;
+    const width = right - left;
+    const height = bottom - top;
+
+    const maxError = Math.max(
+      0.01,
+      ...valid.map(row => Number(row.escaped_error_rate))
+    );
+
+    const minNet = Math.min(
+      0,
+      ...valid.map(row => Number(row.net_per_task))
+    );
+
+    const maxNet = Math.max(
+      ...valid.map(row => Number(row.net_per_task))
+    );
+
+    const netRange = maxNet - minNet || 1;
+
+    let content = "";
+
+    // Chart gridlines and axis labels
+    for (let i = 0; i <= 4; i++) {
+      const ratio = i / 4;
+      const x = left + ratio * width;
+      const y = bottom - ratio * height;
+      const errorValue = maxError * ratio;
+      const netValue = minNet + ratio * netRange;
+
+      content += `
+        <line x1="${x}" y1="${top}" x2="${x}" y2="${bottom}"
+          stroke="#69405F" stroke-opacity="0.45" stroke-dasharray="3 5"/>
+
+        <line x1="${left}" y1="${y}" x2="${right}" y2="${y}"
+          stroke="#69405F" stroke-opacity="0.45" stroke-dasharray="3 5"/>
+
+        <text x="${x}" y="${bottom + 19}"
+          fill="#BFA8BD" font-size="10" text-anchor="middle">
+          ${percent(errorValue)}
+        </text>
+
+        <text x="${left - 10}" y="${y + 4}"
+          fill="#BFA8BD" font-size="10" text-anchor="end">
+          ₹${netValue.toFixed(2)}
+        </text>
+      `;
+    }
+
+    // Axis lines
+    content += `
+      <line x1="${left}" y1="${top}" x2="${left}" y2="${bottom}"
+        stroke="#A98BA5" stroke-width="1.2"/>
+
+      <line x1="${left}" y1="${bottom}" x2="${right}" y2="${bottom}"
+        stroke="#A98BA5" stroke-width="1.2"/>
+    `;
+
+    valid.forEach(row => {
+      const error = Number(row.escaped_error_rate);
+      const net = Number(row.net_per_task);
+      const tasks = Number(row.tasks);
+
+      const x = left + (error / maxError) * width;
+      const y = bottom - ((net - minNet) / netRange) * height;
+      const radius = 8 + Math.sqrt(tasks / 6000) * 8;
+
+      const color = row.verdict === "ASSIST"
+        ? "#F2A85D"
+        : "#E84BD8";
+const labelY = y - radius - 9;
+
+      content += `
+        <g class="category-point" tabindex="0" role="img"
+          aria-label="${row.category}: net value per task ${money(net)}, escaped error rate ${percent(error)}, task volume ${number(tasks)}">
+
+          <title>
+            ${row.category} |
+            Net value per task: ${money(net)} |
+            Escaped error rate: ${percent(error)} |
+            Tasks: ${number(tasks)}
+          </title>
+
+          <circle cx="${x}" cy="${y}" r="${radius}"
+            fill="${color}" fill-opacity="0.85"
+            stroke="#F9D9F5" stroke-width="1.4"/>
+
+          <text x="${x}" y="${labelY}"
+            fill="#F5EAF4" font-size="16" font-weight="600"
+            text-anchor="middle">${row.category}</text>
+        </g>
+      `;
+    });
+
+    $("category-matrix-chart").innerHTML = svgWrap(
+      content,
+      "0 0 700 330"
+    );
+
+    const best = [...valid].sort(
+      (a,b) => Number(b.net_per_task) - Number(a.net_per_task)
+    )[0];
+
+    const highestError = [...valid].sort(
+      (a,b) => Number(b.escaped_error_rate) - Number(a.escaped_error_rate)
+    )[0];
+
+    $("category-insight").textContent =
+      `${best.category} has the highest net value per task at ` +
+      `${money(best.net_per_task)}. ${highestError.category} has the ` +
+      `highest escaped error rate at ${percent(highestError.escaped_error_rate)}. ` +
+      `These are model estimates, not observed business outcomes.`;
+  }
+    // --------------------------------------------------
+  // 3. SCENARIO COMPARISON
+  // --------------------------------------------------
+
+ 
+function renderScenarios(rows) {
+    if (!Array.isArray(rows) || !rows.length) {
+        throw new Error("Sensitivity data is empty.");
+    }
+
+    const valid = rows.filter(row =>
+        row.scenario &&
+        Number.isFinite(Number(row.net_value_after_setup))
+    );
+
+    if (!valid.length) {
+        throw new Error("No valid scenarios.");
+    }
+
+    const maxValue = Math.max(
+        ...valid.map(row => Number(row.net_value_after_setup)),
+        1
+    );
+
+    const width = 900;
+    const left = 205;
+    const right = 105;
+    const top = 48;
+    const rowHeight = 52;
+    const barHeight = 25;
+    const plotWidth = width - left - right;
+    const height = top + valid.length * rowHeight + 35;
+
+    const formatMoney = value =>
+        "₹" + Math.round(value).toLocaleString("en-IN");
+
+    let content = "";
+
+    // Vertical grid lines and scale labels
+    for (let i = 0; i <= 4; i++) {
+        const x = left + (plotWidth * i / 4);
+        const value = maxValue * i / 4;
+
+        content += `
+            <line
+                x1="${x}" y1="${top - 18}"
+                x2="${x}" y2="${height - 18}"
+                stroke="#8C6A89"
+                stroke-opacity="0.25"
+                stroke-dasharray="4 5"
+            />
+            <text
+                x="${x}" y="${height + 5}"
+                fill="#D8C3D6"
+               font-size="14"
+                text-anchor="middle"
+            >${formatMoney(value)}</text>
+        `;
+    }
+
+    valid.forEach((row, index) => {
+        const value = Number(row.net_value_after_setup);
+        const y = top + index * rowHeight;
+        const barWidth = Math.max(3, (value / maxValue) * plotWidth);
+
+        const isBase = row.scenario === "Base case";
+        const color = isBase ? "#52B99A" : "#E84BD8";
+
+        const label = String(row.scenario)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;");
+
+        content += `
+            <text
+                x="${left - 16}"
+                y="${y + 17}"
+                fill="#F5EAF4"
+                font-size="20"
+                text-anchor="end"
+            >${label}</text>
+
+            <rect
+                class="scenario-bar"
+                x="${left}"
+                y="${y}"
+                width="${barWidth}"
+                height="${barHeight}"
+                rx="7"
+                fill="${color}"
+                fill-opacity="${isBase ? 1 : 0.92}"
+            >
+                <title>${label}: ${formatMoney(value)}</title>
+            </rect>
+
+            <text
+                x="${left + barWidth + 12}"
+                y="${y + 18}"
+                fill="#F7EAF5"
+                font-size="17"
+                font-weight="600"
+            >${formatMoney(value)}</text>
+        `;
+    });
+
+    $("scenario-chart").innerHTML = svgwrap(
+        content,
+        `0 0 ${width} ${height}`
+    );
+
+    const best = [...valid].sort(
+        (a, b) =>
+            Number(b.net_value_after_setup) -
+            Number(a.net_value_after_setup)
+    )[0];
+
+    const worst = [...valid].sort(
+        (a, b) =>
+            Number(a.net_value_after_setup) -
+            Number(b.net_value_after_setup)
+    )[0];
+
+    $("scenario-insight").textContent =
+        `${best.scenario} produces the highest modeled net value at ` +
+        `${money(best.net_value_after_setup)}. ` +
+        `${worst.scenario} produces the lowest at ` +
+        `${money(worst.net_value_after_setup)}.`;
+}
+
+  // --------------------------------------------------
+  // 4. BREAK-EVEN ANALYSIS
+  // --------------------------------------------------
+
+ 
+function renderBreakEven(rows) {
+    if (!Array.isArray(rows) || !rows.length) {
+        throw new Error("Cumulative payback export is empty.");
+    }
+
+    const valid = rows.filter(row =>
+        Number.isFinite(Number(row.task_id)) &&
+        Number.isFinite(Number(row.cum_net_after_setup))
+    ).sort((a, b) =>
+        Number(a.task_id) - Number(b.task_id)
+    );
+
+    if (!valid.length) {
+        throw new Error("No valid payback records.");
+    }
+
+    const first = valid[0];
+    const last = valid[valid.length - 1];
+
+    const minX = Number(first.task_id);
+    const maxX = Number(last.task_id);
+    const rangeX = maxX - minX || 1;
+
+    const values = valid.map(row =>
+        Number(row.cum_net_after_setup)
+    );
+
+    const minY = Math.min(0, ...values);
+    const maxY = Math.max(0, ...values);
+    const rangeY = maxY - minY || 1;
+
+    const width = 900;
+    const height = 410;
+
+    const left = 95;
+    const right = 45;
+    const top = 40;
+    const bottom = 325;
+
+    const plotWidth = right + width - right - left;
+    const plotHeight = bottom - top;
+
+    const x = value =>
+        left + ((value - minX) / rangeX) * plotWidth;
+
+    const y = value =>
+        bottom - ((value - minY) / rangeY) * plotHeight;
+
+    const formatMoney = value =>
+        "₹" + Math.round(value).toLocaleString("en-IN");
+
+    const formatTask = value =>
+        Math.round(value).toLocaleString("en-IN");
+
+    let content = "";
+
+    // Y-axis gridlines and labels
+    for (let i = 0; i <= 4; i++) {
+        const value = minY + (rangeY * i / 4);
+        const py = y(value);
+
+        content += `
+            <line
+                x1="${left}" y1="${py}"
+                x2="${width - right}" y2="${py}"
+                stroke="#8C6A89"
+                stroke-opacity="0.28"
+                stroke-dasharray="4 5"
+            />
+
+            <text
+                x="${left - 14}"
+                y="${py + 5}"
+                fill="#D8C3D6"
+                font-size="14"
+                text-anchor="end"
+            >${formatMoney(value)}</text>
+        `;
+    }
+
+    // X-axis labels
+    for (let i = 0; i <= 4; i++) {
+        const task = minX + (rangeX * i / 4);
+        const px = x(task);
+
+        content += `
+            <line
+                x1="${px}" y1="${top}"
+                x2="${px}" y2="${bottom}"
+                stroke="#8C6A89"
+                stroke-opacity="0.15"
+                stroke-dasharray="3 6"
+            />
+
+            <text
+                x="${px}"
+                y="${bottom + 27}"
+                fill="#D8C3D6"
+                font-size="14"
+                text-anchor="middle"
+            >${formatTask(task)}</text>
+        `;
+    }
+
+    // Zero baseline
+    const zeroY = y(0);
+
+    content += `
+        <line
+            x1="${left}"
+            y1="${zeroY}"
+            x2="${width - right}"
+            y2="${zeroY}"
+            stroke="#52B99A"
+            stroke-width="1.8"
+            stroke-dasharray="7 5"
+            opacity="0.9"
+        />
+
+        <text
+            x="${width - right}"
+            y="${zeroY - 10}"
+            fill="#52B99A"
+            font-size="13"
+            text-anchor="end"
+        >Break-even baseline</text>
+    `;
+
+    // Main cumulative value line
+    const points = valid.map(row =>
+        `${x(Number(row.task_id))},${y(Number(row.cum_net_after_setup))}`
+    ).join(" ");
+
+    content += `
+        <polyline
+            points="${points}"
+            fill="none"
+            stroke="#E84BD8"
+            stroke-width="3.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+        />
+    `;
+
+    // Break-even crossing
+    const crossing = valid.find(row =>
+        Number(row.cum_net_after_setup) >= 0
+    );
+
+    if (crossing) {
+        const cx = x(Number(crossing.task_id));
+        const cy = y(Number(crossing.cum_net_after_setup));
+
+        content += `
+            <circle
+                cx="${cx}" cy="${cy}" r="10"
+                fill="#52D7AD"
+                opacity="0.18"
+            />
+
+            <circle
+                cx="${cx}" cy="${cy}" r="6"
+                fill="#52D7AD"
+                stroke="#D7FFF0"
+                stroke-width="2"
+            >
+                <title>Break-even at task ${formatTask(crossing.task_id)}</title>
+            </circle>
+
+            <text
+                x="${Math.min(cx + 16, width - 190)}"
+                y="${Math.max(cy - 17, top + 16)}"
+                fill="#52D7AD"
+                font-size="15"
+                font-weight="600"
+            >Break-even: ${formatTask(crossing.task_id)}</text>
+        `;
+    }
+
+    // Axis titles
+    content += `
+        <text
+            x="${left + plotWidth / 2}"
+            y="${height - 8}"
+            fill="#F5EAF4"
+            font-size="15"
+            text-anchor="middle"
+        >Number of tasks</text>
+
+        <text
+            x="22"
+            y="${top + plotHeight / 2}"
+            fill="#F5EAF4"
+            font-size="14"
+            text-anchor="middle"
+            transform="rotate(-90 22 ${top + plotHeight / 2})"
+        >Cumulative net value (₹)</text>
+    `;
+
+    // Interactive sample points
+    const step = Math.max(1, Math.floor(valid.length / 100));
+
+    valid.forEach((row, index) => {
+        if (index % step !== 0 && index !== valid.length - 1) {
+            return;
+        }
+
+        const px = x(Number(row.task_id));
+        const py = y(Number(row.cum_net_after_setup));
+
+        content += `
+            <circle
+                cx="${px}"
+                cy="${py}"
+                r="4"
+                fill="#F49CEB"
+                opacity="0.01"
+            >
+                <title>
+                    Task ${formatTask(row.task_id)}:
+                    ${formatMoney(row.cum_net_after_setup)}
+                </title>
+            </circle>
+        `;
+    });
+
+    $("break-even-chart").innerHTML = svgwrap(
+        content,
+        `0 0 ${width} ${height}`
+    );
+
+    if (crossing) {
+        $("break-even-insight").textContent =
+            `The cumulative model value first reaches zero at task ` +
+            `${formatTask(crossing.task_id)}. At task ` +
+            `${formatTask(maxX)}, cumulative net value is ` +
+            `${money(last.cum_net_after_setup)}.`;
+    } else {
+        $("break-even-insight").textContent =
+            `The cumulative model value does not reach zero ` +
+            `within the available task records. At task ` +
+            `${formatTask(maxX)}, cumulative net value is ` +
+            `${money(last.cum_net_after_setup)}.`;
+    }
+}
+
+    // --------------------------------------------------
+  // LOAD DATA AND RENDER ALL CHARTS
+  // --------------------------------------------------
+
+  try {
+    const [categories, costs, sensitivity, payback] = await Promise.all([
+      loadExport("category_summary.json"),
+      loadExport("cost_breakdown.json"),
+      loadExport("sensitivity.json"),
+      loadExport("cumulative_payback.json")
+    ]);
+
+    // Validate cost export availability and populate the four summary cards.
+    if (!Array.isArray(costs) || !costs.length) {
+      throw new Error("Cost breakdown export is empty.");
+    }
+
+    const findCost = (...terms) => {
+      const row = costs.find(item => {
+        const label = String(
+          item.component ?? item.category ?? item.cost_type ?? ""
+        ).toLowerCase();
+
+        return terms.some(term => label.includes(term));
+      });
+
+      if (!row) return null;
+
+      const value = Number(row.cost ?? row.total_cost ?? row.value);
+      return Number.isFinite(value) ? value : null;
+    };
+
+    const setKpiMoney = (id, value) => {
+      const element = $(id);
+      if (!element) return;
+
+      element.textContent =
+        value === null ? "Not available" : money(value);
+    };
+
+    setKpiMoney("analysis-ai-cost", findCost("ai usage", "ai_usage"));
+    setKpiMoney("analysis-review-cost", findCost("review"));
+    setKpiMoney("analysis-rework-cost", findCost("rework"));
+    setKpiMoney("analysis-error-cost", findCost("escaped errors", "error"));
+
+    renderWaterfall(sensitivity);
+    renderCategoryMatrix(categories);
+    renderScenarios(sensitivity);
+    renderBreakEven(payback);
+
+  } catch (error) {
+    console.error("Analysis page error:", error);
+
+    showError("waterfall-chart", "Could not load waterfall data.");
+    showError("category-matrix-chart", "Could not load category data.");
+    showError("scenario-chart", "Could not load scenario data.");
+    showError("break-even-chart", "Could not load payback data.");
+
+    showError("waterfall-insight", error.message);
+
+    for (const id of [
+      "analysis-ai-cost",
+      "analysis-review-cost",
+      "analysis-rework-cost",
+      "analysis-error-cost"
+    ]) {
+      showError(id, "Data unavailable");
+    }
+  }
+
+});
+</script>
+
 </body>
 </html>

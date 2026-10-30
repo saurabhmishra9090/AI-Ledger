@@ -173,6 +173,20 @@ def main() -> None:
             TO 'exports/ledger.json'
             (FORMAT JSON, ARRAY true)
         """)
+        
+        # Export cumulative payback data for the dashboard.
+        con.execute("""
+            COPY (
+                SELECT
+                    task_id,
+                    cum_net_after_setup
+                FROM cumulative
+                ORDER BY task_id
+            )
+            TO 'exports/cumulative_payback.json'
+            (FORMAT JSON, ARRAY true)
+        """)
+
 
         print("\nPASS: Dashboard JSON exports created")
 

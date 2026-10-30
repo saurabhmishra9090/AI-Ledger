@@ -97,9 +97,9 @@
   }
 
   // 1. Cost composition — SVG donut chart.
-  function renderCostBreakdown(rows) {
+function renderCostBreakdown(rows, targetId = "cost-chart") {
     if (!Array.isArray(rows) || rows.length === 0) {
-      renderEmpty("cost-chart", "Cost data unavailable.");
+   renderEmpty(targetId, "Cost data unavailable.");
       return;
     }
 
@@ -112,11 +112,11 @@
     );
 
     if (!validRows.length || total <= 0) {
-      renderEmpty("cost-chart", "No positive cost values to chart.");
+  renderEmpty(targetId, "No positive cost values to chart.");
       return;
     }
 
-    const chart = createChart("cost-chart", "Cost composition", 520, 300);
+   const chart = createChart(targetId, "Cost composition", 520, 300);
     if (!chart) return;
 
     const { svg } = chart;
@@ -327,9 +327,9 @@ legendCard.addEventListener("click", () => {
   }
 
   // 2. Monte Carlo distribution — histogram of simulated values.
-  function renderMonteCarlo(rows) {
+function renderMonteCarlo(rows, targetId = "monte-carlo-chart") {
     if (!Array.isArray(rows) || !rows.length) {
-      renderEmpty("monte-carlo-chart", "Simulation data unavailable.");
+  renderEmpty(targetId, "Simulation data unavailable.");
       return;
     }
 
@@ -338,13 +338,11 @@ legendCard.addEventListener("click", () => {
       .filter(Number.isFinite);
 
     if (!values.length) {
-      renderEmpty("monte-carlo-chart", "No valid simulation values.");
+   renderEmpty(targetId, "No valid simulation values.");
       return;
     }
 
-    const chart = createChart(
-      "monte-carlo-chart", "Monte Carlo distribution", 520, 300
-    );
+    const chart = createChart(targetId, "Monte Carlo distribution", 520, 300);
     if (!chart) return;
 
     const { svg } = chart;
@@ -534,9 +532,9 @@ addText(tooltipGroup, tooltipX + 12, tooltipY + 36,
   }
 
   // 3. Sensitivity — compare net value across named scenarios.
-  function renderSensitivity(rows) {
+  function renderSensitivity(rows, targetId = "sensitivity-chart") {
     if (!Array.isArray(rows) || !rows.length) {
-      renderEmpty("sensitivity-chart", "Sensitivity data unavailable.");
+     renderEmpty(targetId, "Sensitivity data unavailable.");
       return;
     }
 
@@ -545,13 +543,11 @@ addText(tooltipGroup, tooltipX + 12, tooltipY + 36,
     );
 
     if (!valid.length) {
-      renderEmpty("sensitivity-chart", "No valid sensitivity values.");
+renderEmpty(targetId, "No valid sensitivity values.");
       return;
     }
 
-    const chart = createChart(
-      "sensitivity-chart", "Sensitivity analysis", 620, 340
-    );
+   const chart = createChart(targetId, "Sensitivity analysis", 620, 340);
     if (!chart) return;
 
     const { svg } = chart;
@@ -591,12 +587,9 @@ addText(tooltipGroup, tooltipX + 12, tooltipY + 36,
   }
 
   // 4. Cumulative payback — requires cumulative SQL export.
-  function renderPayback(rows) {
+ function renderPayback(rows, targetId = "payback-chart") {
     if (!Array.isArray(rows) || !rows.length) {
-      renderEmpty(
-        "payback-chart",
-        "Cumulative SQL export is not available yet."
-      );
+      renderEmpty(targetId, "Cumulative SQL export is not available yet.");
       return;
     }
 
@@ -606,13 +599,11 @@ addText(tooltipGroup, tooltipX + 12, tooltipY + 36,
     );
 
     if (!valid.length) {
-      renderEmpty("payback-chart", "No valid cumulative values.");
+     renderEmpty(targetId, "No valid cumulative values.");
       return;
     }
 
-    const chart = createChart(
-      "payback-chart", "Cumulative payback", 620, 300
-    );
+    const chart = createChart(targetId, "Cumulative payback", 620, 300);
     if (!chart) return;
 
     const { svg } = chart;
