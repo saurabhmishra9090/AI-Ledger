@@ -1,0 +1,361 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Task Ledger | AI LEDGER</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .ledger-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin: 20px 0;
+    }
+    .ledger-toolbar input,
+    .ledger-toolbar select {
+      padding: 11px 13px;
+      color: inherit;
+      background: rgba(30, 5, 29, .8);
+      border: 1px solid rgba(230, 72, 220, .35);
+      border-radius: 8px;
+      min-width: 150px;
+    }
+    .ledger-toolbar input { flex: 1; min-width: 220px; }
+    .ledger-table-wrap { overflow-x: auto; }
+    #ledger-table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 900px;
+    }
+    #ledger-table th, #ledger-table td {
+      padding: 13px 15px;
+      text-align: left;
+      border-bottom: 1px solid rgba(230, 72, 220, .18);
+      white-space: nowrap;
+    }
+    #ledger-table th {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+    }
+    .ledger-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 18px;
+    }
+    .ledger-pagination { display: flex; gap: 8px; align-items: center; }
+    .ledger-pagination button {
+      padding: 8px 13px;
+      color: inherit;
+      background: rgba(100, 20, 90, .45);
+      border: 1px solid rgba(230, 72, 220, .35);
+      border-radius: 7px;
+      cursor: pointer;
+    }
+    .ledger-pagination button:disabled { opacity: .4; cursor: not-allowed; }
+    .ledger-note { opacity: .8; margin-top: 18px; }
+  </style>
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar">
+    <a class="brand" href="index.html" aria-label="AI Ledger home">
+      <img class="brand-logo" src="assets/ai-ledger-logo.png" alt="">
+      <span class="brand-ai">AI</span>
+      <span class="brand-ledger">LEDGER</span>
+    </a>
+
+    <div class="sidebar-caption">WORKSPACE</div>
+    <nav class="sidebar-nav" aria-label="Main navigation">
+      <a class="nav-link" href="index.html">
+        <span class="nav-icon">◇</span><span>Overview</span>
+      </a>
+      <a class="nav-link" href="analysis.html">
+        <span class="nav-icon">▥</span><span>Analysis</span>
+      </a>
+      <a class="nav-link" href="category-triage.html">
+        <span class="nav-icon">▦</span><span>Category Triage</span>
+      </a>
+      <a class="nav-link active" href="task-ledger.html">
+        <span class="nav-icon">▤</span><span>Task Ledger</span>
+      </a>
+      <a class="nav-link" href="assumptions.html">
+        <span class="nav-icon">⚙</span><span>Assumptions</span>
+      </a>
+      <a class="nav-link" href="ai-assistant.html">
+        <span class="nav-icon">✳</span><span>AI Assistant</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <span class="status-dot"></span>
+      <span>Simulation engine ready</span>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <header class="topbar">
+      <div>
+        <div class="eyebrow">WORKSPACE / TASK LEDGER</div>
+        <div class="data-badge">SYNTHETIC SIMULATION</div>
+      </div>
+    </header>
+
+    <section class="dashboard-section">
+      <div class="section-heading">
+        <div>
+          <div class="eyebrow">TRANSACTION DETAIL</div>
+          <h1 class="section-title">Task Ledger</h1>
+        </div>
+        <span class="data-badge">ASSUMPTION-BASED MODEL</span>
+      </div>
+
+      <p>Search, filter and inspect task-level cost and operational records.</p>
+
+      <article class="card table-card">
+        <div class="table-toolbar">
+          <div>
+            <h3 class="chart-title">Task Records</h3>
+            <p class="chart-subtitle">Filter the synthetic task dataset</p>
+          </div>
+          <button class="secondary-button" id="export-ledger" type="button">
+            Export CSV
+          </button>
+        </div>
+
+        <div class="ledger-toolbar">
+          <input id="ledger-search" type="search"
+                 placeholder="Search task ID or category..." aria-label="Search tasks">
+
+          <select id="ledger-category" aria-label="Filter by category">
+            <option value="">All categories</option>
+          </select>
+
+          <select id="ledger-page-size" aria-label="Rows per page">
+            <option value="10">10 rows</option>
+            <option value="25" selected>25 rows</option>
+            <option value="50">50 rows</option>
+            <option value="100">100 rows</option>
+          </select>
+        </div>
+
+        <div class="ledger-table-wrap">
+          <table id="ledger-table">
+            <thead>
+              <tr>
+                <th>Task ID</th>
+                <th>Category</th>
+                <th>AI Cost</th>
+                <th>Review Cost</th>
+                <th>Rework Cost</th>
+                <th>Error Cost</th>
+                <th>Net Value</th>
+              </tr>
+            </thead>
+            <tbody id="ledger-table-body">
+              <tr><td colspan="7">Loading task records...</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="ledger-footer">
+          <span id="ledger-count">Loading records...</span>
+          <div class="ledger-pagination">
+            <button id="ledger-prev" type="button">Previous</button>
+            <span id="ledger-page">Page 1</span>
+            <button id="ledger-next" type="button">Next</button>
+          </div>
+        </div>
+      </article>
+
+      <p class="ledger-note">
+        All values are synthetic estimates generated under stated assumptions,
+        not verified real-world business results.
+      </p>
+
+      <a class="secondary-button" href="index.html">← Back to Overview</a>
+    </section>
+  </main>
+</div>
+
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  const body = $("ledger-table-body");
+  const search = $("ledger-search");
+  const category = $("ledger-category");
+  const pageSize = $("ledger-page-size");
+  let allRows = [];
+  let filteredRows = [];
+  let page = 1;
+
+  const aliases = {
+    id: ["task_id", "id", "taskId", "record_id"],
+    category: ["category", "task_category"],
+    ai: ["ai_usage_cost", "ai_cost", "total_ai_cost"],
+    review: ["review_cost", "human_review_cost", "total_review_cost"],
+    rework: ["rework_cost", "total_rework_cost"],
+    error: ["error_cost", "escaped_error_cost", "total_error_cost"],
+    net: ["net_value", "net_value_after_setup", "total_net_value"]
+  };
+
+  function value(row, names) {
+    for (const name of names) {
+      if (row[name] !== undefined && row[name] !== null) return row[name];
+    }
+    return null;
+  }
+
+  function money(input) {
+    const n = Number(input);
+    return input === null || input === undefined || input === "" || !Number.isFinite(n)
+      ? "—"
+      : n.toLocaleString("en-IN", {
+          style: "currency", currency: "INR", maximumFractionDigits: 2
+        });
+  }
+
+  function render() {
+    const term = search.value.trim().toLowerCase();
+    const selectedCategory = category.value;
+
+    filteredRows = allRows.filter(row => {
+      const id = String(value(row, aliases.id) ?? "");
+      const cat = String(value(row, aliases.category) ?? "");
+      const matchesSearch = `${id} ${cat}`.toLowerCase().includes(term);
+      return matchesSearch && (!selectedCategory || cat === selectedCategory);
+    });
+
+    const size = Number(pageSize.value);
+    const pages = Math.max(1, Math.ceil(filteredRows.length / size));
+    page = Math.min(page, pages);
+    const start = (page - 1) * size;
+    const visibleRows = filteredRows.slice(start, start + size);
+
+    body.replaceChildren();
+
+    if (!visibleRows.length) {
+      body.innerHTML = '<tr><td colspan="7">No matching records found.</td></tr>';
+    } else {
+      for (const row of visibleRows) {
+        const tr = document.createElement("tr");
+        const values = [
+          value(row, aliases.id) ?? "—",
+          value(row, aliases.category) ?? "—",
+          money(value(row, aliases.ai)),
+          money(value(row, aliases.review)),
+          money(value(row, aliases.rework)),
+          money(value(row, aliases.error)),
+          money(value(row, aliases.net))
+        ];
+        for (const item of values) {
+          const td = document.createElement("td");
+          td.textContent = String(item);
+          tr.appendChild(td);
+        }
+        body.appendChild(tr);
+      }
+    }
+
+    $("ledger-count").textContent =
+      `Showing ${filteredRows.length ? start + 1 : 0}–${Math.min(start + size, filteredRows.length)} of ${filteredRows.length} matching records · ${allRows.length} total`;
+    $("ledger-page").textContent = `Page ${page} of ${pages}`;
+    $("ledger-prev").disabled = page <= 1;
+    $("ledger-next").disabled = page >= pages;
+  }
+
+  async function loadData() {
+    const paths = [
+      "DATA/raw/fact_task.csv",
+      "DATA/processed/fact_task.csv",
+      "EXPORTS/task_ledger.json",
+      "EXPORTS/task_records.json"
+    ];
+
+    for (const path of paths) {
+      try {
+        const response = await fetch(path, { cache: "no-store" });
+        if (!response.ok) continue;
+        const text = await response.text();
+        let rows;
+
+        if (path.endsWith(".json")) {
+          const data = JSON.parse(text);
+          rows = Array.isArray(data) ? data : data.records || data.tasks || [];
+        } else {
+          const lines = text.trim().split(/\r?\n/);
+          const headers = lines.shift().split(",").map(v => v.trim().replace(/^"|"$/g, ""));
+          rows = lines.map(line => {
+            const cells = line.match(/("(?:[^"]|"")*"|[^,]*)(,|$)/g) || [];
+            const values = cells.map(v => v.replace(/,$/, "").trim().replace(/^"|"$/g, "").replace(/""/g, '"'));
+            return Object.fromEntries(headers.map((h, i) => [h, values[i] ?? ""]));
+          });
+        }
+
+        if (rows.length) {
+          allRows = rows;
+          const categories = [...new Set(
+            rows.map(row => value(row, aliases.category)).filter(Boolean)
+          )].sort();
+
+          for (const cat of categories) {
+            const option = document.createElement("option");
+            option.value = cat;
+            option.textContent = cat;
+            category.appendChild(option);
+          }
+
+          render();
+          return;
+        }
+      } catch (error) {
+        console.warn(`Could not load ${path}`, error);
+      }
+    }
+
+    body.innerHTML =
+      '<tr><td colspan="7">Task data file not found. We need to connect the actual CSV or database export.</td></tr>';
+    $("ledger-count").textContent = "No task records loaded";
+  }
+
+  search.addEventListener("input", () => { page = 1; render(); });
+  category.addEventListener("change", () => { page = 1; render(); });
+  pageSize.addEventListener("change", () => { page = 1; render(); });
+  $("ledger-prev").addEventListener("click", () => { page--; render(); });
+  $("ledger-next").addEventListener("click", () => { page++; render(); });
+
+  $("export-ledger").addEventListener("click", () => {
+    if (!filteredRows.length) {
+      alert("No records available to export.");
+      return;
+    }
+    const columns = [...new Set(filteredRows.flatMap(row => Object.keys(row)))];
+    const csvCell = input => {
+      const text = String(input ?? "");
+      return `"${text.replace(/"/g, '""')}"`;
+    };
+    const csv = [
+      columns.map(csvCell).join(","),
+      ...filteredRows.map(row => columns.map(col => csvCell(row[col])).join(","))
+    ].join("\r\n");
+
+    const url = URL.createObjectURL(new Blob(["\uFEFF" + csv], {
+      type: "text/csv;charset=utf-8;"
+    }));
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "ai-ledger-task-records.csv";
+    link.click();
+    URL.revokeObjectURL(url);
+  });
+
+  loadData();
+})();
+</script>
+</body>
+</html>

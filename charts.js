@@ -55,13 +55,15 @@
 
     container.replaceChildren();
 
-    const svg = svgElement("svg", {
-      viewBox: `0 0 ${width} ${height}`,
-      width: "100%",
-      role: "img",
-      "aria-label": title,
-      preserveAspectRatio: "xMidYMid meet"
-    });
+   const svg = svgElement("svg", {
+    viewBox: `0 0 ${width} ${height}`,
+    width: "100%",
+    height: `${height}px`,
+    style: `width: 100%; height: ${height}px; display: block;`,
+    role: "img",
+    "aria-label": title,
+    preserveAspectRatio: "xMidYMid meet"
+});
 
     container.appendChild(svg);
     return { container, svg, width, height };
@@ -69,14 +71,16 @@
 
   function addText(svg, x, y, text, options = {}) {
     svg.appendChild(svgElement("text", {
-      x,
-      y,
-      fill: options.color || COLORS.mauve,
-      "font-size": options.size || 11,
-      "font-weight": options.weight || 400,
-      "text-anchor": options.anchor || "start"
+        x,
+        y,
+        fill: options.color || COLORS.mauve,
+        "font-size": options.size || 11,
+        "font-weight": options.weight || 400,
+        "text-anchor": options.anchor || "start"
     }, text));
-  }
+
+    return svg.lastElementChild;
+}
 
   function renderEmpty(containerId, message) {
     const container = document.getElementById(containerId);
@@ -137,53 +141,189 @@
     }));
 
     let offset = 0;
+    let selectedSegment = null;
+    const segments = [];
+    let selectedLegendCard = null;
+  validRows.forEach((row, index) => {
+    const value = Number(row.cost);
+    const length = (value / total) * circumference;
+    const color = palette[index % palette.length];
 
-    validRows.forEach((row, index) => {
-      const value = Number(row.cost);
-      const length = (value / total) * circumference;
-
-      svg.appendChild(svgElement("circle", {
+    const segment = svgElement("circle", {
         cx, cy, r: radius,
         fill: "none",
-        stroke: palette[index % palette.length],
+        stroke: color,
         "stroke-width": stroke,
         "stroke-dasharray": `${length} ${circumference - length}`,
         "stroke-dashoffset": -offset,
-        transform: `rotate(-90 ${cx} ${cy})`
-      }));
-
-      offset += length;
+        transform: `rotate(-90 ${cx} ${cy})`,
+        tabindex: "0",
+        role: "button",
+        "aria-label": `${row.component}: ${money(value)}`
     });
 
-    addText(svg, cx, cy - 5, money(total), {
-      color: COLORS.ivory, size: 17, weight: 700, anchor: "middle"
+    const originalTransform = `rotate(-90 ${cx} ${cy})`;
+    const midAngle = -Math.PI / 2 +
+        ((offset + length / 2) / circumference) * 2 * Math.PI;
+
+    const dx = Math.cos(midAngle) * 9;
+    const dy = Math.sin(midAngle) * 9;
+
+    const liftedTransform =
+        `translate(${dx} ${dy}) ${originalTransform}`;
+        segment.dataset.originalTransform = originalTransform;
+        segment.dataset.liftedTransform = liftedTransform;
+
+    const tooltip = svgElement(
+        "title",
+        {},
+        `${row.component}: ${money(value)} | ${((value / total) * 100).toFixed(1)}%`
+    );
+
+    segment.appendChild(tooltip);
+    segment.style.cursor = "pointer";
+    segment.style.transition = "stroke-width 180ms ease, opacity 180ms ease";
+    segment.style.opacity = "0.9";
+    segment.dataset.originalTransform = originalTransform;
+    segment.addEventListener("mouseenter", () => {
+        segment.setAttribute("transform", liftedTransform);
+        segment.setAttribute("stroke-width", stroke + 5);
+        segment.style.opacity = "1";
     });
-    addText(svg, cx, cy + 16, "Total cost", {
-      color: COLORS.mauve, size: 11, anchor: "middle"
+
+    segment.addEventListener("mouseleave", () => {
+        if (selectedSegment !== segment) {
+            segment.setAttribute("transform", originalTransform);
+            segment.setAttribute("stroke-width", stroke);
+            segment.style.opacity = "0.9";
+        }
     });
 
-    validRows.forEach((row, index) => {
-      const y = 75 + index * 43;
-      const value = Number(row.cost);
-      const percentage = (value / total) * 100;
+    segment.addEventListener("click", () => {
+        if (selectedSegment && selectedSegment !== segment) {
+            selectedSegment.setAttribute(
+                "transform",
+                selectedSegment.dataset.originalTransform
+            );
+            selectedSegment.setAttribute("stroke-width", stroke);
+            selectedSegment.style.opacity = "0.9";
+        }
 
-      svg.appendChild(svgElement("circle", {
-        cx: 280, cy: y - 4, r: 5,
-        fill: palette[index % palette.length]
-      }));
+        if (selectedSegment === segment) {
+            selectedSegment = null;
+            segment.setAttribute("transform", originalTransform);
+            segment.setAttribute("stroke-width", stroke);
+            segment.style.opacity = "0.9";
+        } else {
+            selectedSegment = segment;
+            segment.dataset.originalTransform = originalTransform;
+            segment.setAttribute("transform", liftedTransform);
+            segment.setAttribute("stroke-width", stroke + 5);
+            segment.style.opacity = "1";
+        }
+    
+    const centerValueEl = svg.querySelector("#donut-center-value");
+    const centerLabelEl = svg.querySelector("#donut-center-label");
 
-      addText(svg, 294, y, row.component, {
-        color: COLORS.ivory, size: 11
-      });
+    if (selectedSegment === segment) {
+        centerValueEl.textContent = money(value);
+        centerLabelEl.textContent = row.component;
+    } else {
+        centerValueEl.textContent = money(total);
+        centerLabelEl.textContent = "Total cost";
+    }
+});-    
+    segments.push(segment);
+    svg.appendChild(segment);
+    offset += length;
+});
+   const centerValue = addText(svg, cx, cy - 5, money(total), {
+    color: COLORS.ivory,
+    size: 17,
+    weight: 700,
+    anchor: "middle"
+});
+centerValue.setAttribute("id", "donut-center-value");
 
-      addText(svg, 505, y, `${percentage.toFixed(1)}%`, {
-        color: COLORS.ivory, size: 11, anchor: "end"
-      });
+const centerLabel = addText(svg, cx, cy + 16, "Total cost", {
+    color: COLORS.mauve,
+    size: 11,
+    anchor: "middle"
+});
+centerLabel.setAttribute("id", "donut-center-label");
 
-      addText(svg, 294, y + 15, money(value), {
-        color: COLORS.mauve, size: 10
-      });
+   validRows.forEach((row, index) => {
+    const y = 75 + index * 43;
+    const segment = segments[index];
+    const value = Number(row.cost);
+    const percentage = (value / total) * 100;
+    const color = palette[index % palette.length];
+
+    // Subtle legend card background
+   const legendCard = svgElement("rect", {
+    x: 270,
+    y: y - 17,
+    width: 245,
+    height: 38,
+    rx: 8,
+    fill: "rgba(255,255,255,0.035)",
+    stroke: "rgba(255,255,255,0.07)",
+    "stroke-width": 1,
+    tabindex: "0",
+    role: "button",
+    style: "cursor:pointer; transition:all 180ms ease;"
+});
+
+svg.appendChild(legendCard);
+
+legendCard.addEventListener("mouseenter", () => {
+    segment.setAttribute("transform", segment.dataset.liftedTransform);
+    segment.setAttribute("stroke-width", stroke + 5);
+    legendCard.setAttribute("stroke", color);
+});
+
+legendCard.addEventListener("mouseleave", () => {
+    if (selectedSegment !== segment) {
+        segment.setAttribute("transform", segment.dataset.originalTransform);
+        segment.setAttribute("stroke-width", stroke);
+        legendCard.setAttribute("stroke", "rgba(255,255,255,0.07)");
+    }
+});
+legendCard.addEventListener("click", () => {
+    segment.dispatchEvent(new MouseEvent("click", {
+        bubbles: true
+    }));
+});
+
+    // Category colour indicator
+    svg.appendChild(svgElement("circle", {
+        cx: 280,
+        cy: y - 4,
+        r: 5,
+        fill: color
+    }));
+
+    // Category name
+    addText(svg, 294, y, row.component, {
+        color: COLORS.ivory,
+        size: 11,
+        weight: 600
     });
+
+    // Percentage
+    addText(svg, 505, y, `${percentage.toFixed(1)}%`, {
+        color,
+        size: 12,
+        weight: 700,
+        anchor: "end"
+    });
+
+    // Actual cost
+    addText(svg, 294, y + 15, money(value), {
+        color: COLORS.mauve,
+        size: 10
+    });
+});
   }
 
   // 2. Monte Carlo distribution — histogram of simulated values.
@@ -243,18 +383,124 @@
       }));
     }
 
-    counts.forEach((count, index) => {
-      const barH = (count / maxCount) * plotH;
-      svg.appendChild(svgElement("rect", {
-        x: left + index * barW + barGap / 2,
-        y: top + plotH - barH,
-        width: Math.max(1, barW - barGap),
+    
+let selectedBar = null;
+
+counts.forEach((count, index) => {
+    const barH = (count / maxCount) * plotH;
+    const barX = left + index * barW + barGap / 2;
+    const barY = top + plotH - barH;
+    const actualWidth = Math.max(1, barW - barGap);
+
+    const binMin = min + (index / bins) * range;
+    const binMax = min + ((index + 1) / bins) * range;
+
+    const bar = svgElement("rect", {
+        x: barX,
+        y: barY,
+        width: actualWidth,
         height: barH,
-        rx: 2,
+        rx: 3,
         fill: COLORS.magenta,
-        opacity: 0.85
-      }));
+        opacity: 0.85,
+        tabindex: "0",
+        role: "button",
+        "aria-label": `${count} simulations between ${money(binMin)} and ${money(binMax)}`
     });
+
+   const tooltipWidth = 190;
+const tooltipHeight = 48;
+
+const tooltipX = Math.max(
+    4,
+    Math.min(barX + actualWidth / 2 - tooltipWidth / 2,
+    chart.width - tooltipWidth - 4)
+);
+
+const tooltipY = Math.max(32, barY - tooltipHeight - 10);
+
+const tooltipGroup = svgElement("g", {
+    visibility: "hidden",
+    "pointer-events": "none"
+});
+
+tooltipGroup.appendChild(svgElement("rect", {
+    x: tooltipX,
+    y: tooltipY,
+    width: tooltipWidth,
+    height: tooltipHeight,
+    rx: 8,
+    fill: "#2A0828",
+    stroke: COLORS.magenta,
+    "stroke-width": 1.2,
+    filter: "drop-shadow(0 4px 10px rgba(0,0,0,0.35))"
+}));
+
+addText(tooltipGroup, tooltipX + 12, tooltipY + 19,
+    `${count} simulations`, {
+        color: COLORS.ivory,
+        size: 11,
+        weight: 700
+    }
+);
+
+addText(tooltipGroup, tooltipX + 12, tooltipY + 36,
+    `${money(binMin)} – ${money(binMax)}`, {
+        color: COLORS.mauve,
+        size: 10
+    }
+);
+    bar.style.cursor = "pointer";
+    bar.style.transformBox = "fill-box";
+    bar.style.transformOrigin = "center bottom";
+    bar.style.transition =
+        "transform 180ms ease, opacity 180ms ease, filter 180ms ease";
+
+    bar.addEventListener("mouseenter", () => {
+        tooltipGroup.setAttribute("visibility", "visible");
+        bar.style.transform = "translateY(-6px)";
+        bar.style.opacity = "1";
+        bar.style.filter = "drop-shadow(0 0 7px rgba(232,75,216,0.5))";
+    });
+
+    bar.addEventListener("mouseleave", () => {
+        tooltipGroup.setAttribute("visibility", "hidden");
+        if (selectedBar !== bar) {
+            bar.style.transform = "translateY(0)";
+            bar.style.opacity = "0.85";
+            bar.style.filter = "none";
+        }
+    });
+
+    bar.addEventListener("click", () => {
+        if (selectedBar && selectedBar !== bar) {
+            selectedBar.style.transform = "translateY(0)";
+            selectedBar.style.opacity = "0.85";
+            selectedBar.style.filter = "none";
+            selectedBar.setAttribute("stroke", "none");
+        }
+
+        if (selectedBar === bar) {
+            selectedBar = null;
+            bar.style.transform = "translateY(0)";
+            bar.style.opacity = "0.85";
+            bar.style.filter = "none";
+            bar.setAttribute("stroke", "none");
+        } else {
+            selectedBar = bar;
+            bar.style.transform = "translateY(-6px)";
+            bar.style.opacity = "1";
+            bar.style.filter =
+                "drop-shadow(0 0 9px rgba(232,75,216,0.65))";
+            bar.setAttribute("stroke", COLORS.ivory);
+            bar.setAttribute("stroke-width", "1.5");
+        }
+    });
+
+    svg.appendChild(bar);
+    svg.appendChild(tooltipGroup);
+});
+
 
     const p50 = values.slice().sort((a, b) => a - b)[
       Math.floor((values.length - 1) * 0.5)

@@ -83,22 +83,44 @@ def main() -> None:
         and (df["error_severity"] >= 0).all(),
         "Cost inputs and time values are non-negative",
     )
+    numeric_columns = [
+        "ai_cost",
+        "review_min",
+        "edit_min",
+        "error_severity",
+        "rework_min",
+    ]
+
+    check(
+        df[numeric_columns].apply(
+            lambda column: pd.to_numeric(
+                column, errors="coerce"
+            ).map(lambda value: pd.notna(value) and value not in [float("inf"), float("-inf")])
+        ).all().all(),
+        "Numeric values are finite and valid",
+    )
+   
+    # PASTE NEW CHECK HERE
+    check(
+        not df.loc[df["ai_correct"], "review_caught"].any(),
+        "Correct AI outputs are never marked as review-caught",
+    )
 
     incorrect = ~df["ai_correct"]
     check(
-        (df.loc[incorrect, "review_caught"] != df.loc[incorrect, "escaped"]).all()
-        and not df.loc[df["ai_correct"], "review_caught"].any()
-        and not df.loc[df["ai_correct"], "escaped"].any(),
-        "Caught and escaped flags are logically consistent",
-    )
+            (df.loc[incorrect, "review_caught"] != df.loc[incorrect, "escaped"]).all()
+            and not df.loc[df["ai_correct"], "review_caught"].any()
+            and not df.loc[df["ai_correct"], "escaped"].any(),
+            "Caught and escaped flags are logically consistent",
+        )
     check(
-        (df.loc[~df["review_caught"], "rework_min"] == 0).all(),
-        "No caught error means zero rework time",
-    )
+            (df.loc[~df["review_caught"], "rework_min"] == 0).all(),
+            "No caught error means zero rework time",
+        )
     check(
-        (df.loc[df["ai_correct"], "error_severity"] == 0).all(),
-        "Correct AI outputs have zero error severity",
-    )
+            (df.loc[df["ai_correct"], "error_severity"] == 0).all(),
+            "Correct AI outputs have zero error severity",
+        )
 
     print("\nCategory counts:")
     print(df["category"].value_counts().to_string())

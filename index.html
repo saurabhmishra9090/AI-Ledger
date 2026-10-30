@@ -164,197 +164,102 @@
             <div class="kpi-sparkline" aria-hidden="true"></div>
           </article>
         </div>
-      </section>
+        
+<!-- FINANCIAL SNAPSHOT -->
+<div class="dashboard-section">
+    <div class="section-heading">
+        <div>
+            <div class="eyebrow">FINANCIAL PERFORMANCE</div>
+            <h2 class="section-title">Financial Snapshot</h2>
+        </div>
+        <span class="data-badge">SYNTHETIC MODEL</span>
+    </div>
 
-     
-      <section class="dashboard-section" id="category-triage">
-        <div class="section-heading">
-          <div>
-            <div class="eyebrow">DECISION SUPPORT</div>
-            <h2 class="section-title">Category Triage</h2>
-          </div>
-          <span class="section-caption">Model recommendations, not automatic decisions</span>
+    <div class="grid-2">
+        <article class="card">
+            <h3>Cost Composition</h3>
+            <div id="cost-chart"></div>
+        </article>
+
+        <article class="card">
+            <h3>Simulation Value Distribution</h3>
+            <div id="monte-carlo-chart"></div>
+        </article>
+    </div>
+</div>
+
+      </section>
+    
+<!-- KEY INSIGHTS -->
+<section class="dashboard-section" id="key-insights">
+    <div class="section-heading">
+        <div>
+            <div class="eyebrow">MODEL INTELLIGENCE</div>
+            <h2 class="section-title">Key Insights</h2>
+        </div>
+        <span class="data-badge">AUTO-GENERATED</span>
+    </div>
+
+    <div class="grid-2">
+        <article class="card insight-card">
+            <div class="insight-icon icon-cost">₹</div>
+            <div class="insight-label">COST DRIVER</div>
+            <h3 id="insight-cost-title">Analysing cost data...</h3>
+            <p id="insight-cost-description">
+                Identifying the largest contributor to total cost.
+            </p>
+        </article>
+
+        <article class="card insight-card">
+            <div class="insight-icon icon-simulation">↗</div>
+            <div class="insight-label">SIMULATION OUTCOME</div>
+            <h3 id="insight-value-title">Analysing simulation...</h3>
+            <p id="insight-value-description">
+                Evaluating the simulated net value distribution.
+            </p>
+        </article>
+
+        <article class="card insight-card">
+            <div class="insight-icon icon-efficiency">✓</div>
+            <div class="insight-label">OPERATIONAL EFFICIENCY</div>
+            <h3 id="insight-efficiency-title">Analysing efficiency...</h3>
+            <p id="insight-efficiency-description">
+                Reviewing operational cost and error indicators.
+            </p>
+        </article>
+    </div>
+</section>
+<!-- TOP 3 CATEGORIES -->
+<section class="dashboard-section" id="top-categories">
+   <div class="category-hero">
+    <div class="category-hero-content">
+        <div class="category-eyebrow">
+            <span class="category-eyebrow-icon">▥</span>
+            CATEGORY INTELLIGENCE
         </div>
 
-        <article class="card table-card">
-          <div class="table-toolbar">
-            <div>
-              <h3 class="chart-title">Category Performance</h3>
-              <p class="chart-subtitle">Compare economics and escaped-error risk</p>
-            </div>
-            <button class="secondary-button" id="export-categories" type="button">
-              Export CSV
-            </button>
-          </div>
+        <h2 class="category-title">
+            <span>Top 3</span> Categories
+        </h2>
 
-          <div class="table-scroll">
-            <table>
-              <thead>
-                <tr>
-                  <th>Category</th>
-                  <th>Tasks</th>
-                  <th>Net / Task</th>
-                  <th>Escaped Errors</th>
-                  <th>Review Burden</th>
-                  <th>Model Verdict</th>
-                </tr>
-              </thead>
-              <tbody id="category-table-body">
-                <tr><td colspan="6">Loading category data…</td></tr>
-              </tbody>
-            </table>
-          </div>
+        <p class="category-subtitle">
+            Highest cost impact categories in synthetic model analysis
+        </p>
+    </div>
+
+    <div class="category-model-badge">
+        <span>▤</span>
+        SYNTHETIC MODEL
+    </div>
+</div>
+
+    <div class="grid-3" id="top-categories-grid">
+        <article class="card">
+            <p>Loading category performance...</p>
         </article>
-      </section>
+    </div>
+</section>
 
-      <section class="dashboard-section" id="task-ledger">
-        <div class="section-heading">
-          <div>
-            <div class="eyebrow">TRANSACTION DETAIL</div>
-            <h2 class="section-title">Task Ledger</h2>
-          </div>
-          <span class="section-caption">Task-level cost accounting</span>
-        </div>
-
-        <article class="card table-card">
-          <div class="table-toolbar">
-            <div>
-              <h3 class="chart-title">Task Records</h3>
-              <p class="chart-subtitle" id="ledger-count">Loading records…</p>
-            </div>
-
-            <div class="table-controls">
-              <input id="ledger-search" type="search"
-                placeholder="Search task ID or category"
-                aria-label="Search task ledger">
-              <select id="ledger-category" aria-label="Filter by category">
-                <option value="">All categories</option>
-                <option>Billing</option>
-                <option>Technical</option>
-                <option>Account</option>
-                <option>Returns</option>
-                <option>Complaints</option>
-              </select>
-              <button class="secondary-button" id="export-ledger" type="button">
-                Export CSV
-              </button>
-            </div>
-          </div>
-
-          <div class="table-scroll">
-            <table>
-              <thead>
-                <tr>
-                  <th>Task ID</th>
-                  <th>Category</th>
-                  <th>Baseline</th>
-                  <th>AI Cost</th>
-                  <th>Review</th>
-                  <th>Rework</th>
-                  <th>Error Cost</th>
-                  <th>Net Value</th>
-                </tr>
-              </thead>
-              <tbody id="ledger-table-body">
-                <tr><td colspan="8">Loading task ledger…</td></tr>
-              </tbody>
-            </table>
-          </div>
-
-          <div class="table-footer">
-            <span id="ledger-page-info">Page 1</span>
-            <div class="pagination">
-              <button class="secondary-button" id="ledger-prev" type="button">Previous</button>
-              <button class="secondary-button" id="ledger-next" type="button">Next</button>
-            </div>
-          </div>
-        </article>
-      </section>
-
-      <section class="dashboard-section" id="assumptions">
-        <div class="section-heading">
-          <div>
-            <div class="eyebrow">MODEL GOVERNANCE</div>
-            <h2 class="section-title">Assumptions & Sensitivity</h2>
-          </div>
-          <span class="data-badge">ASSUMPTION</span>
-        </div>
-
-        <article class="card assumptions-card">
-          <p class="section-description">
-            These are proposed starting values, not measured business facts.
-            Changes will only be described as model outputs when recalculated.
-          </p>
-
-          <div class="assumptions-grid">
-            <label class="assumption-field">
-              <span>Hourly labour rate (₹)</span>
-              <input id="assumption-hourly-rate" type="number" min="0" step="1" value="30">
-            </label>
-
-            <label class="assumption-field">
-              <span>AI cost per task (₹)</span>
-              <input id="assumption-ai-cost" type="number" min="0" step="0.01" value="0.02">
-            </label>
-
-            <label class="assumption-field">
-              <span>Escaped-error cost (₹)</span>
-              <input id="assumption-error-cost" type="number" min="0" step="1" value="40">
-            </label>
-
-            <label class="assumption-field">
-              <span>One-time setup cost (₹)</span>
-              <input id="assumption-setup-cost" type="number" min="0" step="100" value="2000">
-            </label>
-          </div>
-
-          <div class="assumptions-actions">
-            <button class="primary-button" id="recalculate-model" type="button">
-              Recalculate Model
-            </button>
-            <span id="assumption-status" role="status">
-              Default assumptions loaded
-            </span>
-          </div>
-        </article>
-      </section>
-
-      <section class="dashboard-section" id="ai-assistant">
-        <div class="section-heading">
-          <div>
-            <div class="eyebrow">EVIDENCE-BASED Q&A</div>
-            <h2 class="section-title">MetricTrust-style AI Assistant</h2>
-          </div>
-          <span class="section-caption">Answers grounded in loaded dashboard data</span>
-        </div>
-
-        <article class="card assistant-card">
-          <div class="assistant-intro">
-            <div class="assistant-icon">✳</div>
-            <div>
-              <h3 class="chart-title">Ask AI Ledger</h3>
-              <p class="chart-subtitle">
-                Ask about costs, category verdicts, simulation results or assumptions.
-                Unsupported questions will be identified rather than guessed.
-              </p>
-            </div>
-          </div>
-
-          <div class="assistant-messages" id="assistant-messages" aria-live="polite">
-            <div class="assistant-message assistant-response">
-              Load the dashboard data first. I will answer using the available model outputs.
-            </div>
-          </div>
-
-          <form class="assistant-form" id="assistant-form">
-            <input id="assistant-input" type="text"
-              placeholder="e.g. Which category has the highest escaped-error rate?"
-              aria-label="Ask AI Ledger"
-              required>
-            <button class="primary-button" type="submit">Ask</button>
-          </form>
-        </article>
-      </section>
 
       <footer class="app-footer">
         <div class="footer-brand">

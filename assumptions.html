@@ -1,0 +1,263 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Assumptions | AI LEDGER</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .assumptions-intro {
+      max-width: 850px;
+      line-height: 1.7;
+      opacity: .88;
+      margin-bottom: 24px;
+    }
+    .assumptions-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 20px;
+      margin-top: 24px;
+    }
+    .assumption-field {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .assumption-field label {
+      font-weight: 600;
+    }
+    .assumption-field small {
+      opacity: .7;
+      line-height: 1.5;
+    }
+    .assumption-field input {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 12px 14px;
+      color: inherit;
+      background: rgba(30, 5, 29, .8);
+      border: 1px solid rgba(230, 72, 220, .35);
+      border-radius: 8px;
+      font: inherit;
+    }
+    .assumptions-actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 14px;
+      margin-top: 26px;
+    }
+    #assumption-status {
+      opacity: .85;
+      line-height: 1.5;
+    }
+    .assumption-warning {
+      margin-top: 20px;
+      padding: 14px 16px;
+      border: 1px solid rgba(230, 72, 220, .3);
+      border-radius: 10px;
+      line-height: 1.6;
+    }
+    @media (max-width: 700px) {
+      .assumptions-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar">
+    <a class="brand" href="index.html" aria-label="AI Ledger home">
+      <img class="brand-logo" src="assets/ai-ledger-logo.png" alt="">
+      <span class="brand-ai">AI</span>
+      <span class="brand-ledger">LEDGER</span>
+    </a>
+
+    <div class="sidebar-caption">WORKSPACE</div>
+    <nav class="sidebar-nav" aria-label="Main navigation">
+      <a class="nav-link" href="index.html">
+        <span class="nav-icon">◇</span><span>Overview</span>
+      </a>
+      <a class="nav-link" href="analysis.html">
+        <span class="nav-icon">▥</span><span>Analysis</span>
+      </a>
+      <a class="nav-link" href="category-triage.html">
+        <span class="nav-icon">▦</span><span>Category Triage</span>
+      </a>
+      <a class="nav-link" href="task-ledger.html">
+        <span class="nav-icon">▤</span><span>Task Ledger</span>
+      </a>
+      <a class="nav-link active" href="assumptions.html">
+        <span class="nav-icon">⚙</span><span>Assumptions</span>
+      </a>
+      <a class="nav-link" href="ai-assistant.html">
+        <span class="nav-icon">✳</span><span>AI Assistant</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <span class="status-dot"></span>
+      <span>Simulation engine ready</span>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <header class="topbar">
+      <div>
+        <div class="eyebrow">WORKSPACE / ASSUMPTIONS</div>
+        <div class="data-badge">MODEL GOVERNANCE</div>
+      </div>
+    </header>
+
+    <section class="dashboard-section">
+      <div class="section-heading">
+        <div>
+          <div class="eyebrow">MODEL CONFIGURATION</div>
+          <h1 class="section-title">Assumptions &amp; Sensitivity</h1>
+        </div>
+        <span class="data-badge">ASSUMPTION-BASED MODEL</span>
+      </div>
+
+      <p class="assumptions-intro">
+        Review the proposed starting values used by the AI LEDGER simulation.
+        Change inputs to explore alternative assumptions. These are model
+        parameters, not measured business facts.
+      </p>
+
+      <article class="card assumptions-card">
+        <h3 class="chart-title">Cost &amp; Risk Parameters</h3>
+        <p class="chart-subtitle">
+          Default values are illustrative assumptions.
+        </p>
+
+        <form id="assumptions-form">
+          <div class="assumptions-grid">
+            <div class="assumption-field">
+              <label for="hourly-rate">Hourly labour rate (₹)</label>
+              <input id="hourly-rate" type="number"
+                     min="0" step="1" value="30" required>
+              <small>Estimated labour cost per hour.</small>
+            </div>
+
+            <div class="assumption-field">
+              <label for="ai-cost">AI cost per task (₹)</label>
+              <input id="ai-cost" type="number"
+                     min="0" step="0.01" value="0.02" required>
+              <small>Estimated AI processing cost per task.</small>
+            </div>
+
+            <div class="assumption-field">
+              <label for="error-cost">Escaped-error cost (₹)</label>
+              <input id="error-cost" type="number"
+                     min="0" step="1" value="40" required>
+              <small>Assumed cost per error that reaches a customer.</small>
+            </div>
+
+            <div class="assumption-field">
+              <label for="setup-cost">One-time setup cost (₹)</label>
+              <input id="setup-cost" type="number"
+                     min="0" step="100" value="2000" required>
+              <small>Initial implementation cost used in the model.</small>
+            </div>
+
+            <div class="assumption-field">
+              <label for="review-minutes">Human review time (minutes/task)</label>
+              <input id="review-minutes" type="number"
+                     min="0" step="0.1" value="0.6" required>
+              <small>Assumed review time for each task.</small>
+            </div>
+
+            <div class="assumption-field">
+              <label for="rework-minutes">Rework time (minutes/task)</label>
+              <input id="rework-minutes" type="number"
+                     min="0" step="0.1" value="0.2" required>
+              <small>Assumed additional correction time per task.</small>
+            </div>
+          </div>
+
+          <div class="assumptions-actions">
+            <button class="primary-button" type="submit">
+              Recalculate Model
+            </button>
+            <button class="secondary-button" id="reset-assumptions" type="button">
+              Reset Defaults
+            </button>
+            <span id="assumption-status" role="status" aria-live="polite">
+              Default assumptions loaded.
+            </span>
+          </div>
+        </form>
+      </article>
+
+      <div class="assumption-warning">
+        <strong>Model governance note</strong>
+        <p>
+          These inputs are illustrative. Saving new values on this page does
+          not automatically rerun the Python simulation or update the other
+          dashboard pages. Recalculation integration will be connected
+          separately.
+        </p>
+      </div>
+
+      <p class="kpi-note">
+        All outputs are synthetic estimates, not verified real-world results.
+      </p>
+
+      <a class="secondary-button" href="index.html">← Back to Overview</a>
+    </section>
+  </main>
+</div>
+
+<script>
+(() => {
+  const form = document.getElementById("assumptions-form");
+  const status = document.getElementById("assumption-status");
+  const fields = [
+    "hourly-rate",
+    "ai-cost",
+    "error-cost",
+    "setup-cost",
+    "review-minutes",
+    "rework-minutes"
+  ];
+
+  const defaults = {
+    "hourly-rate": 30,
+    "ai-cost": 0.02,
+    "error-cost": 40,
+    "setup-cost": 2000,
+    "review-minutes": 0.6,
+    "rework-minutes": 0.2
+  };
+
+  form.addEventListener("submit", event => {
+    event.preventDefault();
+
+    const values = {};
+    for (const id of fields) {
+      const input = document.getElementById(id);
+      const number = Number(input.value);
+
+      if (input.value.trim() === "" || !Number.isFinite(number) || number < 0) {
+        status.textContent = "Enter valid non-negative values in all fields.";
+        input.focus();
+        return;
+      }
+      values[id] = number;
+    }
+
+    status.textContent =
+      "Inputs validated. Full simulation recalculation is not connected yet.";
+    console.info("AI LEDGER assumption inputs:", values);
+  });
+
+  document.getElementById("reset-assumptions").addEventListener("click", () => {
+    for (const id of fields) {
+      document.getElementById(id).value = defaults[id];
+    }
+    status.textContent = "Default assumptions restored. Submit to validate.";
+  });
+})();
+</script>
+</body>
+</html>

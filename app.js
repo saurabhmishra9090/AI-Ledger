@@ -258,6 +258,199 @@ function renderKPIs() {
   }
 }
 
+function renderInsights() {
+  // 1. Largest cost contributor
+  const costTitle = $("#insight-cost-title");
+  const costDescription = $("#insight-cost-description");
+
+  const costs = Array.isArray(state.costs) ? state.costs : [];
+
+  if (costs.length && costTitle && costDescription) {
+    const largestCost = [...costs].sort(
+      (a, b) => Number(b.cost) - Number(a.cost)
+    )[0];
+
+    costTitle.textContent = `${largestCost.component} is the largest cost`;
+    costDescription.textContent =
+      `${money(largestCost.cost)} estimated cost in this synthetic model.`;
+  }
+
+  // 2. Simulation outcome
+  const valueTitle = $("#insight-value-title");
+  const valueDescription = $("#insight-value-description");
+
+  const p50 = Number(state.simulation?.net_value_after_setup?.p50);
+
+  if (valueTitle && valueDescription && Number.isFinite(p50)) {
+    valueTitle.textContent =
+      p50 >= 0 ? "Positive median net value" : "Negative median net value";
+
+    valueDescription.textContent =
+      `Estimated median net value after setup: ${money(p50)}.`;
+  }
+
+  // 3. Operational efficiency
+  const efficiencyTitle = $("#insight-efficiency-title");
+  const efficiencyDescription = $("#insight-efficiency-description");
+
+  const categories = Array.isArray(state.categories)
+    ? state.categories
+    : [];
+
+  if (categories.length && efficiencyTitle && efficiencyDescription) {
+    const highestReview = [...categories].sort(
+      (a, b) => Number(b.review_burden) - Number(a.review_burden)
+    )[0];
+
+    efficiencyTitle.textContent =
+      `${highestReview.category} has the highest review burden`;
+
+    efficiencyDescription.textContent =
+      `Review burden: ${percent(highestReview.review_burden)}. ` +
+      `Escaped error rate: ${percent(highestReview.escaped_error_rate)}.`;
+  }
+}
+
+
+function renderTopCategories() {
+    const container = $("#top-categories-grid");
+    if (!container) return;
+
+    const categories = Array.isArray(state.categories)
+        ? state.categories
+        : [];
+
+    if (!categories.length) {
+        container.innerHTML = `
+            <article class="card">
+                <p>No category data available.</p>
+            </article>
+        `;
+        return;
+    }
+
+    const topThree = [...categories]
+        .sort((a, b) =>
+            Number(b.net_per_task || 0) - Number(a.net_per_task || 0)
+        )
+        .slice(0, 3);
+
+    const categoryInfo = (category) => {
+        const name = String(category).toLowerCase();
+
+        if (name.includes("bill")) {
+            return {
+                icon: "▤",
+                description: "Invoicing and billing related costs and adjustments."
+            };
+        }
+
+        if (name.includes("technical")) {
+            return {
+                icon: "⚙",
+                description: "Technical operations and service related costs."
+            };
+        }
+
+        if (name.includes("return")) {
+            return {
+                icon: "↶",
+                description: "Product returns and refund processing costs."
+            };
+        }
+
+        return {
+            icon: "▣",
+            description: "Category performance and operational cost analysis."
+        };
+    };
+
+    container.innerHTML = topThree.map((row, index) => {
+        const category = String(row.category || "Unclassified");
+        const info = categoryInfo(category);
+        const categoryKey = category.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+
+        const review = Math.max(
+            0,
+            Math.min(100, Number(row.review_burden || 0) * 100)
+        );
+
+        return `
+            <article class="category-feature-card">
+
+                <div class="category-card-header">
+
+                 <div class="category-icon category-icon-${categoryKey}">
+                        ${info.icon}
+                    </div>
+
+                    <div class="category-heading">
+                        <span class="rank-badge">
+                            RANK ${index + 1}
+                        </span>
+
+                        <h3>${escapeHTML(category)}</h3>
+
+                        <p>${info.description}</p>
+                    </div>
+
+                    <div class="category-mini-bars" aria-hidden="true">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+
+                </div>
+
+                <div class="category-metrics">
+
+                    <div class="category-metric-row">
+                    <div class="metric-icon metric-icon-tasks">
+    <svg viewBox="0 0 24 24" width="27" height="27"
+         fill="none" stroke="currentColor"
+         stroke-width="2" stroke-linecap="round"
+         stroke-linejoin="round">
+        <path d="M12 3 3 8l9 5 9-5-9-5Z"/>
+        <path d="m3 12 9 5 9-5"/>
+        <path d="m3 16 9 5 9-5"/>
+    </svg>
+</div>
+                        <div class="metric-details">
+                            <span>Total Tasks</span>
+                            <strong>${number(row.tasks || 0)}</strong>
+                        </div>
+                    </div>
+
+                    <div class="category-metric-row">
+                      <div class="metric-icon metric-icon-value">₹</div>
+
+                        <div class="metric-details">
+                            <span>Net value per task</span>
+                            <strong>${money(row.net_per_task)}</strong>
+                        </div>
+                    </div>
+
+                    <div class="category-metric-row review-metric">
+                      <div class="metric-icon metric-icon-review">🛡</div>
+
+                        <div class="metric-details">
+                            <span>Review burden</span>
+                            <strong>${review.toFixed(2)}%</strong>
+
+                            <div class="review-progress">
+                                <div style="width: ${review}%"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </article>
+        `;
+    }).join("");
+}
 
   function renderCategoryTable() {
     const tbody = $("#category-table-body");
@@ -370,6 +563,8 @@ function renderKPIs() {
 
   function renderAll() {
     renderKPIs();
+    renderInsights();
+    renderTopCategories();
     renderCategoryTable();
     renderLedger();
     renderCharts();

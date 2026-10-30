@@ -1,0 +1,321 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Assistant | AI LEDGER</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .assistant-intro {
+      max-width: 850px;
+      line-height: 1.7;
+      opacity: .85;
+      margin-bottom: 24px;
+    }
+    .assistant-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 270px;
+      gap: 20px;
+      align-items: start;
+    }
+    .assistant-chat {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      min-height: 540px;
+    }
+    .chat-messages {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      padding: 20px 0;
+      flex: 1;
+      min-height: 280px;
+      max-height: 460px;
+      overflow-y: auto;
+    }
+    .chat-message {
+      max-width: 88%;
+      padding: 14px 16px;
+      border: 1px solid rgba(230, 72, 220, .25);
+      border-radius: 12px;
+      line-height: 1.65;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+    .chat-message.assistant {
+      align-self: flex-start;
+      background: rgba(60, 12, 55, .7);
+    }
+    .chat-message.user {
+      align-self: flex-end;
+      background: rgba(160, 30, 140, .25);
+    }
+    .chat-role {
+      display: block;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      opacity: .72;
+      margin-bottom: 5px;
+    }
+    .chat-form {
+      display: flex;
+      gap: 10px;
+      border-top: 1px solid rgba(230, 72, 220, .2);
+      padding-top: 18px;
+    }
+    .chat-form input {
+      flex: 1;
+      min-width: 0;
+      padding: 13px 14px;
+      color: inherit;
+      background: rgba(30, 5, 29, .8);
+      border: 1px solid rgba(230, 72, 220, .35);
+      border-radius: 9px;
+      font: inherit;
+    }
+    .chat-form button {
+      padding: 12px 20px;
+      cursor: pointer;
+    }
+    .suggestion-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 18px;
+    }
+    .suggestion-button {
+      text-align: left;
+      padding: 12px;
+      color: inherit;
+      background: rgba(60, 12, 55, .65);
+      border: 1px solid rgba(230, 72, 220, .25);
+      border-radius: 9px;
+      cursor: pointer;
+      font: inherit;
+      line-height: 1.5;
+    }
+    .suggestion-button:hover {
+      border-color: rgba(240, 75, 220, .8);
+    }
+    .assistant-disclaimer {
+      font-size: 12px;
+      opacity: .7;
+      line-height: 1.6;
+      margin-top: 14px;
+    }
+    @media (max-width: 900px) {
+      .assistant-layout { grid-template-columns: 1fr; }
+      .assistant-chat { min-height: 440px; }
+    }
+    @media (max-width: 600px) {
+      .chat-form { flex-direction: column; }
+      .chat-message { max-width: 96%; }
+    }
+  </style>
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar">
+    <a class="brand" href="index.html" aria-label="AI Ledger home">
+      <img class="brand-logo" src="assets/ai-ledger-logo.png" alt="">
+      <span class="brand-ai">AI</span>
+      <span class="brand-ledger">LEDGER</span>
+    </a>
+
+    <div class="sidebar-caption">WORKSPACE</div>
+    <nav class="sidebar-nav" aria-label="Main navigation">
+      <a class="nav-link" href="index.html">
+        <span class="nav-icon">◇</span><span>Overview</span>
+      </a>
+      <a class="nav-link" href="analysis.html">
+        <span class="nav-icon">▥</span><span>Analysis</span>
+      </a>
+      <a class="nav-link" href="category-triage.html">
+        <span class="nav-icon">▦</span><span>Category Triage</span>
+      </a>
+      <a class="nav-link" href="task-ledger.html">
+        <span class="nav-icon">▤</span><span>Task Ledger</span>
+      </a>
+      <a class="nav-link" href="assumptions.html">
+        <span class="nav-icon">⚙</span><span>Assumptions</span>
+      </a>
+      <a class="nav-link active" href="ai-assistant.html">
+        <span class="nav-icon">✳</span><span>AI Assistant</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <span class="status-dot"></span>
+      <span>Simulation engine ready</span>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <header class="topbar">
+      <div>
+        <div class="eyebrow">WORKSPACE / AI ASSISTANT</div>
+        <div class="data-badge">EVIDENCE-BASED Q&amp;A</div>
+      </div>
+    </header>
+
+    <section class="dashboard-section">
+      <div class="section-heading">
+        <div>
+          <div class="eyebrow">MODEL INTERPRETATION</div>
+          <h1 class="section-title">AI Ledger Assistant</h1>
+        </div>
+        <span class="data-badge">LOCAL DEMO</span>
+      </div>
+
+      <p class="assistant-intro">
+        Ask about the simulation's cost estimates, sensitivity scenarios,
+        category metrics or model limitations. Answers are based on the
+        illustrative figures configured in this local demo.
+      </p>
+
+      <div class="assistant-layout">
+        <article class="card assistant-chat">
+          <div>
+            <h3 class="chart-title">Ask AI Ledger</h3>
+            <p class="chart-subtitle">
+              Evidence-grounded answers from available project figures
+            </p>
+          </div>
+
+          <div class="chat-messages" id="chat-messages" aria-live="polite">
+            <div class="chat-message assistant">
+              <span class="chat-role">AI Ledger</span>
+              Hi! I can explain the sample simulation results, compare
+              categories and describe model assumptions. Ask me a question
+              or select one of the suggested prompts.
+            </div>
+          </div>
+
+          <form class="chat-form" id="chat-form">
+            <input id="chat-input" type="text"
+                   placeholder="Ask about costs, risks or categories..."
+                   autocomplete="off" required>
+            <button class="primary-button" type="submit">Ask</button>
+          </form>
+
+          <p class="assistant-disclaimer">
+            Demo limitation: this page uses local rule-based responses, not
+            a connected large language model. It does not independently
+            verify business data.
+          </p>
+        </article>
+
+        <aside class="card">
+          <h3 class="chart-title">Suggested Questions</h3>
+          <p class="chart-subtitle">Choose a prompt to get started.</p>
+          <div class="suggestion-list">
+            <button class="suggestion-button" type="button"
+                    data-question="Summarize the simulation results">
+              Summarize the simulation
+            </button>
+            <button class="suggestion-button" type="button"
+                    data-question="Explain the Monte Carlo results">
+              Explain Monte Carlo results
+            </button>
+            <button class="suggestion-button" type="button"
+                    data-question="Which category has the highest escaped error rate?">
+              Highest escaped-error category
+            </button>
+            <button class="suggestion-button" type="button"
+                    data-question="Explain the model limitations">
+              Explain model limitations
+            </button>
+            <button class="suggestion-button" type="button"
+                    data-question="How do I interpret sensitivity analysis?">
+              Interpret sensitivity analysis
+            </button>
+          </div>
+        </aside>
+      </div>
+
+      <p class="kpi-note">
+        All project values are synthetic estimates, not verified real-world results.
+      </p>
+
+      <a class="secondary-button" href="index.html">← Back to Overview</a>
+    </section>
+  </main>
+</div>
+
+<script>
+(() => {
+  const form = document.getElementById("chat-form");
+  const input = document.getElementById("chat-input");
+  const messages = document.getElementById("chat-messages");
+
+  function addMessage(role, text) {
+    const message = document.createElement("div");
+    message.className = `chat-message ${role}`;
+
+    const label = document.createElement("span");
+    label.className = "chat-role";
+    label.textContent = role === "user" ? "You" : "AI Ledger";
+
+    const content = document.createElement("div");
+    content.textContent = text;
+
+    message.append(label, content);
+    messages.appendChild(message);
+    messages.scrollTop = messages.scrollHeight;
+  }
+
+  function answerQuestion(question) {
+    const q = question.toLowerCase();
+
+    if (q.includes("monte carlo") || q.includes("simulation results") ||
+        q.includes("summarize") || q.includes("summary")) {
+      return "The saved synthetic Monte Carlo output reports a P10 value of ₹38,676.21, a median (P50) of ₹42,072.73, a P90 value of ₹45,639.91 and a mean of ₹42,132.88. These figures describe the model's simulated outcomes, not guaranteed savings or verified business results.";
+    }
+
+    if (q.includes("escaped error") || q.includes("highest error") ||
+        q.includes("error rate") || q.includes("category")) {
+      return "The saved category summary reports these escaped-error rates: Complaints 3.15%, Technical 1.70%, Returns 1.43%, Account 0.72%, and Billing 0.58%. Complaints has the highest rate in this synthetic sample. Review the category data and assumptions before making operational decisions.";
+    }
+
+    if (q.includes("sensitivity") || q.includes("sensitive")) {
+      return "The saved sensitivity analysis reports a base value of ₹42,107.59. Accuracy -2 percentage points gives ₹37,737.59; accuracy +2 points gives ₹46,477.59. Hourly cost -20% gives ₹30,256.47, while +20% gives ₹53,958.71. Doubling AI cost gives ₹41,707.59, and doubling error cost gives ₹27,359.59. These are assumption-dependent model outputs.";
+    }
+
+    if (q.includes("limitation") || q.includes("assumption") ||
+        q.includes("reliable") || q.includes("real world")) {
+      return "This project uses synthetic task records and illustrative cost, review and error assumptions. Its results depend on those inputs and should not be presented as measured business savings. Validate assumptions against real operational data and independently test the calculation logic before using it for decisions.";
+    }
+
+    if (q.includes("cost") || q.includes("expense") || q.includes("value")) {
+      return "The saved model summary reports a median net value of ₹42,072.73. Its cost breakdown includes AI cost ₹400, escaped errors ₹15,703.97, review cost ₹28,113.16 and rework cost ₹5,354.33. These are synthetic estimates; the net value should be interpreted alongside the model assumptions.";
+    }
+
+    return "I can currently answer questions about the saved Monte Carlo results, sensitivity analysis, category escaped-error rates, cost breakdown and model limitations. Try asking about one of those topics. This local demo does not call an external AI service.";
+  }
+
+  function submitQuestion(question) {
+    const cleaned = question.trim();
+    if (!cleaned) return;
+    addMessage("user", cleaned);
+    addMessage("assistant", answerQuestion(cleaned));
+  }
+
+  form.addEventListener("submit", event => {
+    event.preventDefault();
+    submitQuestion(input.value);
+    input.value = "";
+    input.focus();
+  });
+
+  document.querySelectorAll("[data-question]").forEach(button => {
+    button.addEventListener("click", () => {
+      submitQuestion(button.dataset.question);
+    });
+  });
+})();
+</script>
+</body>
+</html>
