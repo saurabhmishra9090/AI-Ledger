@@ -17,3 +17,4 @@ pytest==9.2.0
 python-dateutil==3.0.0
 six==1.17.0
 tzdata==2026.6
+Flask>=3.0,<4.0

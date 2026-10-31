@@ -1,11 +1,11 @@
 {
-  "hourly_rate": 30.0,
-  "ai_cost_per_task": 0.02,
-  "escaped_error_cost": 40.0,
-  "setup_cost": 2000.0,
-  "target_review_minutes": 0.6,
-  "target_rework_minutes": 0.2,
-  "review_catch_rate": 0.85,
-  "configuration_label": "ASSUMPTION",
-  "data_label": "SYNTHETIC SIMULATION"
+    "hourly_rate": 40.0,
+    "ai_cost_per_task": 0.02,
+    "escaped_error_cost": 40.0,
+    "setup_cost": 2000.0,
+    "target_review_minutes": 0.6,
+    "target_rework_minutes": 0.2,
+    "review_catch_rate": 0.85,
+    "configuration_label": "ASSUMPTION",
+    "data_label": "SYNTHETIC SIMULATION"
 }

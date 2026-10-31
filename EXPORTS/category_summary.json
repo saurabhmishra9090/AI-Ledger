@@ -1,7 +1,7 @@
 [
-	{"category":"Account","tasks":5000,"net_per_task":2.81,"escaped_error_rate":0.0072,"review_burden":0.098,"verdict":"AUTOMATE"},
-	{"category":"Billing","tasks":6000,"net_per_task":3.38,"escaped_error_rate":0.0058,"review_burden":0.085,"verdict":"AUTOMATE"},
-	{"category":"Complaints","tasks":2000,"net_per_task":3.19,"escaped_error_rate":0.0315,"review_burden":0.087,"verdict":"ASSIST"},
-	{"category":"Returns","tasks":3000,"net_per_task":3.25,"escaped_error_rate":0.0143,"review_burden":0.091,"verdict":"AUTOMATE"},
-	{"category":"Technical","tasks":4000,"net_per_task":4.02,"escaped_error_rate":0.017,"review_burden":0.089,"verdict":"AUTOMATE"}
+	{"category":"Account","tasks":5000,"net_per_task":3.85,"escaped_error_rate":0.0072,"review_burden":0.098,"verdict":"AUTOMATE"},
+	{"category":"Billing","tasks":6000,"net_per_task":4.59,"escaped_error_rate":0.0058,"review_burden":0.085,"verdict":"AUTOMATE"},
+	{"category":"Complaints","tasks":2000,"net_per_task":5.22,"escaped_error_rate":0.0315,"review_burden":0.087,"verdict":"ASSIST"},
+	{"category":"Returns","tasks":3000,"net_per_task":4.59,"escaped_error_rate":0.0143,"review_burden":0.091,"verdict":"AUTOMATE"},
+	{"category":"Technical","tasks":4000,"net_per_task":5.78,"escaped_error_rate":0.017,"review_burden":0.089,"verdict":"AUTOMATE"}
 ]

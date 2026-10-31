@@ -185,10 +185,12 @@
       <div class="assumption-warning">
         <strong>Model governance note</strong>
         <p>
-          These inputs are illustrative. Saving new values on this page does
-          not automatically rerun the Python simulation or update the other
-          dashboard pages. Recalculation integration will be connected
-          separately.
+          <p>
+  Changes to these assumptions trigger the Python-based SQL model
+  and Monte Carlo simulation. Updated outputs are exported for
+  the dashboard. All results remain illustrative and depend on
+  the stated modelling assumptions and synthetic data.
+</p>
         </p>
       </div>
 
@@ -203,53 +205,104 @@
 
 <script>
 (() => {
-  const form = document.getElementById("assumptions-form");
-  const status = document.getElementById("assumption-status");
-  const fields = [
-    "hourly-rate",
-    "ai-cost",
-    "error-cost",
-    "setup-cost",
-    "review-minutes",
-    "rework-minutes"
-  ];
+    const form = document.getElementById("assumptions-form");
+    const status = document.getElementById("assumption-status");
 
-  const defaults = {
-    "hourly-rate": 30,
-    "ai-cost": 0.02,
-    "error-cost": 40,
-    "setup-cost": 2000,
-    "review-minutes": 0.6,
-    "rework-minutes": 0.2
-  };
+    const defaults = {
+        "hourly-rate": 30,
+        "ai-cost": 0.02,
+        "error-cost": 40,
+        "setup-cost": 2000,
+        "review-minutes": 0.6,
+        "rework-minutes": 0.2
+    };
 
-  form.addEventListener("submit", event => {
-    event.preventDefault();
+    form.addEventListener("submit", async (event) => {
+        event.preventDefault();
 
-    const values = {};
-    for (const id of fields) {
-      const input = document.getElementById(id);
-      const number = Number(input.value);
+        const values = {};
 
-      if (input.value.trim() === "" || !Number.isFinite(number) || number < 0) {
-        status.textContent = "Enter valid non-negative values in all fields.";
-        input.focus();
-        return;
-      }
-      values[id] = number;
-    }
+        for (const [id, defaultValue] of Object.entries(defaults)) {
+            const input = document.getElementById(id);
+            const number = Number(input.value);
 
-    status.textContent =
-      "Inputs validated. Full simulation recalculation is not connected yet.";
-    console.info("AI LEDGER assumption inputs:", values);
-  });
+            if (
+                input.value.trim() === "" ||
+                !Number.isFinite(number) ||
+                number < 0
+            ) {
+                status.textContent = "Please enter valid non-negative values.";
+                input.focus();
+                return;
+            }
 
-  document.getElementById("reset-assumptions").addEventListener("click", () => {
-    for (const id of fields) {
-      document.getElementById(id).value = defaults[id];
-    }
-    status.textContent = "Default assumptions restored. Submit to validate.";
-  });
+            if (
+                (id === "review-minutes" || id === "rework-minutes") &&
+                number <= 0
+            ) {
+                status.textContent = "Review and rework minutes must be greater than zero.";
+                input.focus();
+                return;
+            }
+
+            values[id] = number;
+        }
+
+        const payload = {
+            hourly_rate: values["hourly-rate"],
+            ai_cost_per_task: values["ai-cost"],
+            escaped_error_cost: values["error-cost"],
+            setup_cost: values["setup-cost"],
+            target_review_minutes: values["review-minutes"],
+            target_rework_minutes: values["rework-minutes"],
+            review_catch_rate: 0.85
+        };
+
+        const button = form.querySelector('button[type="submit"]');
+
+        button.disabled = true;
+        button.textContent = "Recalculating...";
+        status.textContent = "Running SQL model and Monte Carlo simulation...";
+
+        try {
+            const response = await fetch("/api/recalculate", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(payload)
+            });
+
+            const result = await response.json();
+
+            if (!response.ok || !result.success) {
+                throw new Error(
+                    result.error || "Model recalculation failed."
+                );
+            }
+
+            status.textContent =
+                "Success! SQL model and Monte Carlo simulation recalculated.";
+
+            console.log("AI Ledger recalculation results:", result);
+
+        } catch (error) {
+            status.textContent = "Recalculation failed: " + error.message;
+            console.error(error);
+
+        } finally {
+            button.disabled = false;
+            button.textContent = "Recalculate Model";
+        }
+    });
+
+    document.getElementById("reset-assumptions").addEventListener("click", () => {
+        for (const [id, value] of Object.entries(defaults)) {
+            document.getElementById(id).value = value;
+        }
+
+        status.textContent = "Default assumptions restored. Click Recalculate Model to apply.";
+    });
 })();
 </script>
 </body>

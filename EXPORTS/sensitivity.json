@@ -1,37 +1,37 @@
 [
   {
     "scenario":"Base case",
-    "operating_net_value":69304.0922135639,
-    "net_value_after_setup":67304.0922135639
+    "operating_net_value":97454.7896180852,
+    "net_value_after_setup":95454.7896180852
   },
   {
     "scenario":"Accuracy -2pp",
-    "operating_net_value":66090.0922135639,
-    "net_value_after_setup":64090.0922135639
+    "operating_net_value":94229.4562847518,
+    "net_value_after_setup":92229.4562847518
   },
   {
     "scenario":"Accuracy +2pp",
-    "operating_net_value":72518.0922135639,
-    "net_value_after_setup":70518.0922135639
+    "operating_net_value":100680.1229514185,
+    "net_value_after_setup":98680.1229514185
   },
   {
     "scenario":"Hourly cost -20%",
-    "operating_net_value":52413.6737708511,
-    "net_value_after_setup":50413.6737708511
+    "operating_net_value":74934.2316944681,
+    "net_value_after_setup":72934.2316944681
   },
   {
     "scenario":"Hourly cost +20%",
-    "operating_net_value":86194.5106562767,
-    "net_value_after_setup":84194.5106562767
+    "operating_net_value":119975.3475417022,
+    "net_value_after_setup":117975.3475417022
   },
   {
     "scenario":"AI cost doubled",
-    "operating_net_value":68904.0922135639,
-    "net_value_after_setup":66904.0922135639
+    "operating_net_value":97054.7896180852,
+    "net_value_after_setup":95054.7896180852
   },
   {
     "scenario":"Error cost doubled",
-    "operating_net_value":54556.0922135639,
-    "net_value_after_setup":52556.0922135639
+    "operating_net_value":82706.7896180852,
+    "net_value_after_setup":80706.7896180852
   }
 ]

@@ -1,15 +1,15 @@
 {
   "simulation_label": "SYNTHETIC SIMULATION",
   "parameter_label": "ASSUMPTION",
-  "break_even_accuracy_shift": -0.41881825,
+  "break_even_accuracy_shift": -0.59190651,
   "seed": 42,
   "simulation_count": 2000,
   "setup_cost": 2000.0,
   "net_value_after_setup": {
-    "p10": 64780.42,
-    "p50": 67278.45,
-    "p90": 69902.0,
-    "mean": 67322.33,
+    "p10": 92922.22,
+    "p50": 95429.06,
+    "p90": 98061.86,
+    "mean": 95473.09,
     "probability_positive": 1.0
   }
 }
