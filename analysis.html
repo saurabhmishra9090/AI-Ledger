@@ -123,11 +123,11 @@
     .analysis-kpi-spark span:nth-child(6) { height: 25px; }
 
     .analysis-grid {
-      display: grid;
-      grid-template-columns: repeat(2,minmax(0,1fr));
-      gap: 18px;
-      margin-bottom: 18px;
-    }
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 22px;
+    margin-bottom: 24px;
+}
 
     .analysis-card {
       min-width: 0;
@@ -704,12 +704,12 @@ function svgwrap(content, viewBox = "0 0 700 330") {
           stroke="#69405F" stroke-opacity="0.45" stroke-dasharray="3 5"/>
 
         <text x="${x}" y="${bottom + 19}"
-          fill="#BFA8BD" font-size="10" text-anchor="middle">
+          fill="#BFA8BD" font-size="14" text-anchor="middle">
           ${percent(errorValue)}
         </text>
 
         <text x="${left - 10}" y="${y + 4}"
-          fill="#BFA8BD" font-size="10" text-anchor="end">
+          fill="#BFA8BD" font-size="14" text-anchor="end">
           ₹${netValue.toFixed(2)}
         </text>
       `;
@@ -754,7 +754,7 @@ const labelY = y - radius - 9;
             stroke="#F9D9F5" stroke-width="1.4"/>
 
           <text x="${x}" y="${labelY}"
-            fill="#F5EAF4" font-size="16" font-weight="600"
+            fill="#F5EAF4" font-size="20" font-weight="600"
             text-anchor="middle">${row.category}</text>
         </g>
       `;
@@ -857,7 +857,7 @@ function renderScenarios(rows) {
                 x="${left - 16}"
                 y="${y + 17}"
                 fill="#F5EAF4"
-                font-size="20"
+                font-size="22"
                 text-anchor="end"
             >${label}</text>
 
@@ -878,7 +878,7 @@ function renderScenarios(rows) {
                 x="${left + barWidth + 12}"
                 y="${y + 18}"
                 fill="#F7EAF5"
-                font-size="17"
+                font-size="19"
                 font-weight="600"
             >${formatMoney(value)}</text>
         `;
@@ -987,7 +987,7 @@ function renderBreakEven(rows) {
                 x="${left - 14}"
                 y="${py + 5}"
                 fill="#D8C3D6"
-                font-size="14"
+                font-size="16"
                 text-anchor="end"
             >${formatMoney(value)}</text>
         `;
@@ -1011,7 +1011,7 @@ function renderBreakEven(rows) {
                 x="${px}"
                 y="${bottom + 27}"
                 fill="#D8C3D6"
-                font-size="14"
+                font-size="16"
                 text-anchor="middle"
             >${formatTask(task)}</text>
         `;
@@ -1086,7 +1086,7 @@ function renderBreakEven(rows) {
                 x="${Math.min(cx + 16, width - 190)}"
                 y="${Math.max(cy - 17, top + 16)}"
                 fill="#52D7AD"
-                font-size="15"
+                font-size="18"
                 font-weight="600"
             >Break-even: ${formatTask(crossing.task_id)}</text>
         `;
@@ -1098,17 +1098,17 @@ function renderBreakEven(rows) {
             x="${left + plotWidth / 2}"
             y="${height - 8}"
             fill="#F5EAF4"
-            font-size="15"
+            font-size="17"
             text-anchor="middle"
         >Number of tasks</text>
 
         <text
-            x="22"
+            x="5"
             y="${top + plotHeight / 2}"
             fill="#F5EAF4"
-            font-size="14"
+            font-size="16"
             text-anchor="middle"
-            transform="rotate(-90 22 ${top + plotHeight / 2})"
+            transform="rotate(-90 5 ${top + plotHeight / 2})"
         >Cumulative net value (₹)</text>
     `;
 

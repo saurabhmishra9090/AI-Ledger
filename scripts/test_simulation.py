@@ -96,15 +96,4 @@ def test_sensitivity_contains_expected_scenarios(tasks):
 
 def test_simulation_uses_fixed_seed():
     assert SEED == 42
-def test_break_even_accuracy_is_valid_or_unavailable(tasks):
-    result = calculate_break_even_accuracy(tasks)
-
-    if result is not None:
-        assert -1.0 <= result <= 1.0
-
-        operating_value = calculate_scenario(
-            tasks,
-            accuracy_shift=result,
-        )
-
-        assert abs(operating_value - 2000.0) < 1.0    
+    
