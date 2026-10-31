@@ -2255,3 +2255,128 @@ tbody tr:hover {
     opacity: 0.85;
     filter: brightness(1.2) drop-shadow(0 0 7px rgba(232, 75, 216, 0.35));
 }
+/* Category Triage Banner */
+.category-banner {
+    width: 100%;
+    height: 300px;
+    overflow: hidden;
+    border-radius: 18px;
+    margin-bottom: 24px;
+}
+
+.category-banner img {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: cover;
+    object-position: center;
+}
+
+/* CATEGORY TRIAGE KPI CARDS */
+
+.category-kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+    margin: 24px 0;
+}
+
+.category-kpi-card {
+    position: relative;
+    min-width: 0;
+    min-height: 145px;
+    padding: 23px;
+    border: 1px solid rgba(232, 75, 216, 0.35);
+    border-radius: 18px;
+    background: linear-gradient(
+        145deg,
+        #5A124F,
+        #2A0828
+    );
+    box-shadow: 0 8px 26px rgba(0, 0, 0, 0.16);
+    overflow: hidden;
+    transition: transform 0.25s ease, border-color 0.25s ease;
+}
+
+.category-kpi-card:hover {
+    transform: translateY(-4px);
+    border-color: #E84BD8;
+}
+
+.category-kpi-label {
+    display: block;
+    color: #CDB8CA;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    margin-bottom: 17px;
+}
+
+.category-kpi-card h2 {
+    color: #F49CEB;
+    font-size: 30px;
+    font-weight: 800;
+    margin: 0 0 10px;
+}
+
+.category-kpi-card p {
+    color: #D8C4D5;
+    font-size: 12px;
+    margin: 0;
+}
+
+@media (max-width: 1000px) {
+    .category-kpi-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 600px) {
+    .category-kpi-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* CATEGORY KPI INDIVIDUAL NEON GLOW */
+
+.category-kpi-card.kpi-cyan {
+    --card-glow: #20C9F5;
+    border-color: rgba(32, 201, 245, 0.55);
+    box-shadow: 0 0 15px rgba(32, 201, 245, 0.12);
+}
+
+.category-kpi-card.kpi-magenta {
+    --card-glow: #E84BD8;
+    border-color: rgba(232, 75, 216, 0.55);
+    box-shadow: 0 0 15px rgba(232, 75, 216, 0.14);
+}
+
+.category-kpi-card.kpi-amber {
+    --card-glow: #F5A623;
+    border-color: rgba(245, 166, 35, 0.55);
+    box-shadow: 0 0 15px rgba(245, 166, 35, 0.12);
+}
+
+.category-kpi-card.kpi-violet {
+    --card-glow: #A879FF;
+    border-color: rgba(168, 121, 255, 0.55);
+    box-shadow: 0 0 15px rgba(168, 121, 255, 0.12);
+}
+
+/* Individual KPI number colors */
+.category-kpi-card.kpi-cyan h2,
+.category-kpi-card.kpi-magenta h2,
+.category-kpi-card.kpi-amber h2,
+.category-kpi-card.kpi-violet h2 {
+    color: var(--card-glow);
+}
+
+/* Hover glow */
+.category-kpi-card.kpi-cyan:hover,
+.category-kpi-card.kpi-magenta:hover,
+.category-kpi-card.kpi-amber:hover,
+.category-kpi-card.kpi-violet:hover {
+    border-color: var(--card-glow);
+    box-shadow: 0 0 24px color-mix(in srgb, var(--card-glow) 30%, transparent);
+}
+
