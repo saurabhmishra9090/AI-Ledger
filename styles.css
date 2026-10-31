@@ -2379,4 +2379,53 @@ tbody tr:hover {
     border-color: var(--card-glow);
     box-shadow: 0 0 24px color-mix(in srgb, var(--card-glow) 30%, transparent);
 }
+/* CATEGORY TRIAGE NAVIGATION TABS */
+.category-tabs {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    padding: 12px;
+    margin: 22px 0;
+    background: linear-gradient(145deg, #2A0828, #310C30);
+    border: 1px solid rgba(232, 75, 216, 0.22);
+    border-radius: 14px;
+}
 
+.category-tab {
+    padding: 11px 20px;
+    color: #D8C4D5;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 9px;
+    font-size: 13px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+
+.category-tab:hover {
+    color: #FFFFFF;
+    background: rgba(232, 75, 216, 0.10);
+    border-color: rgba(232, 75, 216, 0.35);
+}
+
+.category-tab.active {
+    color: #FFFFFF;
+    background: linear-gradient(135deg, #7A176F, #470038);
+    border-color: #E84BD8;
+    box-shadow: 0 0 14px rgba(232, 75, 216, 0.28);
+}
+
+.category-tab:focus-visible {
+    outline: 2px solid #F49CEB;
+    outline-offset: 3px;
+}
+/* CATEGORY TRIAGE TAB PANELS */
+.category-panel {
+    display: none;
+}
+
+.category-panel.active {
+    display: block;
+}

@@ -77,7 +77,16 @@
 
 </div>
 
-        <div class="card chart-card">
+<!-- CATEGORY TRIAGE NAVIGATION TABS -->
+<div class="category-tabs">
+    <button class="category-tab active" data-tab="overview">Overview</button>
+    <button class="category-tab" data-tab="profitability">Profitability</button>
+    <button class="category-tab" data-tab="risk">Risk Analysis</button>
+    <button class="category-tab" data-tab="heatmap">Category Heatmap</button>
+    <button class="category-tab" data-tab="recommendations">Recommendations</button>
+</div>
+
+<div class="card chart-card category-panel active" data-panel="overview">
           <div class="section-heading">
             <div>
               <h3>Category Performance</h3>
@@ -104,7 +113,153 @@
             </table>
           </div>
         </div>
+        <!-- PROFITABILITY PANEL -->
+<div class="card chart-card category-panel" data-panel="profitability">
 
+    <div class="section-heading">
+        <div>
+            <h3>Category Profitability</h3>
+            <p>Compare estimated net value generated across workflow categories</p>
+        </div>
+        <button class="button" id="export-profitability" type="button">
+    Export Profitability CSV
+</button>
+    </div>
+
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>Category</th>
+                    <th>Tasks</th>
+                    <th>Net / Task</th>
+                    <th>Estimated Net Value</th>
+                </tr>
+            </thead>
+
+            <tbody id="profitability-table-body">
+                <tr>
+                    <td colspan="4">Loading profitability data...</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <p class="kpi-note">
+        Estimated net value is calculated as task volume × net value per task.
+        All figures are synthetic model estimates.
+    </p>
+
+</div>
+<!-- RISK ANALYSIS PANEL -->
+<div class="card chart-card category-panel" data-panel="risk">
+
+    <div class="section-heading">
+        <div>
+            <h3>Category Risk Analysis</h3>
+            <p>Identify categories with high escaped errors and review burden</p>
+        </div>
+
+        <button class="button" id="export-risk" type="button">
+            Export Risk CSV
+        </button>
+    </div>
+
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>Category</th>
+                    <th>Tasks</th>
+                    <th>Escaped Error Rate</th>
+                    <th>Review Burden</th>
+                    <th>Risk Level</th>
+                    <th>Model Verdict</th>
+                </tr>
+            </thead>
+
+            <tbody id="risk-table-body">
+                <tr>
+                    <td colspan="6">Loading risk data...</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+<!-- CATEGORY HEATMAP PANEL -->
+<div class="card chart-card category-panel" data-panel="heatmap">
+
+    <div class="section-heading">
+        <div>
+            <h3>Category Risk Heatmap</h3>
+            <p>Visual comparison of workflow risk across categories</p>
+        </div>
+
+        <button class="button" id="export-heatmap" type="button">
+            Export Heatmap CSV
+        </button>
+    </div>
+
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>Category</th>
+                    <th>Escaped Error Rate</th>
+                    <th>Review Burden</th>
+                    <th>Risk Level</th>
+                    <th>Model Verdict</th>
+                </tr>
+            </thead>
+
+            <tbody id="heatmap-table-body">
+                <tr>
+                    <td colspan="5">Loading heatmap data...</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+<!-- RECOMMENDATIONS PANEL -->
+<div class="card chart-card category-panel" data-panel="recommendations">
+
+    <div class="section-heading">
+        <div>
+            <h3>Category Recommendations</h3>
+            <p>Suggested actions based on category risk and operational metrics</p>
+        </div>
+
+        <button class="button" id="export-recommendations" type="button">
+            Export Recommendations CSV
+        </button>
+    </div>
+
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>Category</th>
+                    <th>Priority</th>
+                    <th>Key Signal</th>
+                    <th>Recommended Action</th>
+                </tr>
+            </thead>
+
+            <tbody id="recommendations-table-body">
+                <tr>
+                    <td colspan="4">Loading recommendations...</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <p class="kpi-note">
+        Recommendations are rule-based suggestions derived from synthetic model data.
+    </p>
+
+</div>
         <p class="kpi-note">
           Values are synthetic estimates generated under stated assumptions,
           not verified real-world business results.
@@ -164,7 +319,202 @@ const values = [
         body.appendChild(tr);
       }
     }
+    function renderProfitability(rows) {
+    const body = document.getElementById("profitability-table-body");
 
+    if (!body) return;
+
+    body.replaceChildren();
+
+    if (!rows.length) {
+        body.innerHTML =
+            '<tr><td colspan="4">No profitability data available.</td></tr>';
+        return;
+    }
+
+    rows.forEach(row => {
+        const category = getValue(row, ["category", "task_category", "name"]);
+        const tasks = Number(getValue(row, ["tasks", "task_count", "total_tasks"]));
+        const netPerTask = Number(getValue(row, ["net_per_task"]));
+        const totalNetValue = tasks * netPerTask;
+
+        const tr = document.createElement("tr");
+
+        const values = [
+            category,
+            tasks.toLocaleString("en-IN"),
+            money(netPerTask),
+            money(totalNetValue)
+        ];
+
+        values.forEach(value => {
+            const td = document.createElement("td");
+            td.textContent = String(value);
+            tr.appendChild(td);
+        });
+
+        body.appendChild(tr);
+    });
+}
+// RISK ANALYSIS TABLE
+function renderRiskAnalysis(rows) {
+    const body = document.getElementById("risk-table-body");
+
+    if (!body) return;
+
+    body.replaceChildren();
+
+    if (!rows.length) {
+        body.innerHTML =
+            '<tr><td colspan="6">No risk data available.</td></tr>';
+        return;
+    }
+
+    rows.forEach(row => {
+        const category = getValue(row, ["category", "task_category", "name"]);
+        const tasks = Number(getValue(row, ["tasks", "task_count", "total_tasks"]));
+
+        let errorRate = Number(getValue(row, ["escaped_error_rate"])) || 0;
+        let reviewBurden = Number(getValue(row, ["review_burden"])) || 0;
+
+        if (errorRate <= 1) errorRate *= 100;
+        if (reviewBurden <= 1) reviewBurden *= 100;
+
+        const riskLevel =
+            errorRate >= 2 ? "HIGH" :
+            errorRate >= 1 ? "MEDIUM" : "LOW";
+
+        const verdict = getValue(row, ["verdict"]) || "REVIEW";
+
+        const values = [
+            category,
+            tasks.toLocaleString("en-IN"),
+            errorRate.toFixed(2) + "%",
+            reviewBurden.toFixed(2) + "%",
+            riskLevel,
+            verdict
+        ];
+
+        const tr = document.createElement("tr");
+
+        values.forEach(value => {
+            const td = document.createElement("td");
+            td.textContent = String(value);
+            tr.appendChild(td);
+        });
+
+        body.appendChild(tr);
+    });
+}
+// CATEGORY HEATMAP TABLE
+function renderHeatmap(rows) {
+    const body = document.getElementById("heatmap-table-body");
+
+    if (!body) return;
+
+    body.replaceChildren();
+
+    if (!rows.length) {
+        body.innerHTML =
+            '<tr><td colspan="5">No heatmap data available.</td></tr>';
+        return;
+    }
+
+    rows.forEach(row => {
+        const category = getValue(row, ["category", "task_category", "name"]);
+
+        let errorRate = Number(getValue(row, ["escaped_error_rate"])) || 0;
+        let reviewBurden = Number(getValue(row, ["review_burden"])) || 0;
+
+        if (errorRate <= 1) errorRate *= 100;
+        if (reviewBurden <= 1) reviewBurden *= 100;
+
+        const riskLevel =
+            errorRate >= 2 ? "HIGH" :
+            errorRate >= 1 ? "MEDIUM" : "LOW";
+
+        const verdict = getValue(row, ["verdict"]) || "REVIEW";
+
+        const tr = document.createElement("tr");
+
+        const values = [
+            category,
+            errorRate.toFixed(2) + "%",
+            reviewBurden.toFixed(2) + "%",
+            riskLevel,
+            verdict
+        ];
+
+        values.forEach((value, index) => {
+            const td = document.createElement("td");
+            td.textContent = String(value);
+
+            if (index === 3) {
+                td.style.fontWeight = "700";
+                td.style.color =
+                    riskLevel === "HIGH" ? "#ff5c8a" :
+                    riskLevel === "MEDIUM" ? "#ffbd4a" :
+                    "#35d6a0";
+            }
+
+            tr.appendChild(td);
+        });
+
+        body.appendChild(tr);
+    });
+}
+// RECOMMENDATIONS TABLE
+function renderRecommendations(rows) {
+    const body = document.getElementById("recommendations-table-body");
+
+    if (!body) return;
+
+    body.replaceChildren();
+
+    if (!rows.length) {
+        body.innerHTML =
+            '<tr><td colspan="4">No recommendations available.</td></tr>';
+        return;
+    }
+
+    rows.forEach(row => {
+        const category = getValue(row, ["category", "task_category", "name"]);
+
+        let errorRate = Number(getValue(row, ["escaped_error_rate"])) || 0;
+        let reviewBurden = Number(getValue(row, ["review_burden"])) || 0;
+
+        if (errorRate <= 1) errorRate *= 100;
+        if (reviewBurden <= 1) reviewBurden *= 100;
+
+        let priority;
+        let signal;
+        let action;
+
+        if (errorRate >= 2) {
+            priority = "HIGH";
+            signal = `Escaped errors: ${errorRate.toFixed(2)}%`;
+            action = "Keep human review and investigate errors";
+        } else if (reviewBurden >= 30) {
+            priority = "MEDIUM";
+            signal = `Review burden: ${reviewBurden.toFixed(2)}%`;
+            action = "Review automation opportunities";
+        } else {
+            priority = "LOW";
+            signal = "Low operational risk";
+            action = "Continue automation with monitoring";
+        }
+
+        const tr = document.createElement("tr");
+
+        [category, priority, signal, action].forEach(value => {
+            const td = document.createElement("td");
+            td.textContent = String(value);
+            tr.appendChild(td);
+        });
+
+        body.appendChild(tr);
+    });
+}
     async function loadCategories() {
       const body = document.getElementById("category-table-body");
 
@@ -183,6 +533,10 @@ const values = [
           : (Array.isArray(data.categories) ? data.categories : []);
 
         renderCategories(exportRows);
+        renderProfitability(exportRows);
+        renderRiskAnalysis(exportRows);
+        renderHeatmap(exportRows);
+        renderRecommendations(exportRows);
       } catch (error) {
         console.error("Category data loading failed:", error);
         body.innerHTML =
@@ -214,7 +568,225 @@ const values = [
       link.click();
       URL.revokeObjectURL(url);
     });
+    // PROFITABILITY CSV EXPORT
+document.getElementById("export-profitability").addEventListener("click", () => {
+    if (!exportRows.length) {
+        alert("No profitability data available to export.");
+        return;
+    }
 
+    const rows = exportRows.map(row => {
+        const category = getValue(row, ["category", "task_category", "name"]);
+        const tasks = Number(getValue(row, ["tasks", "task_count", "total_tasks"]));
+        const netPerTask = Number(getValue(row, ["net_per_task"]));
+
+        return [
+            category,
+            tasks,
+            netPerTask,
+            tasks * netPerTask
+        ];
+    });
+
+    const csvCell = value =>
+        `"${String(value ?? "").replace(/"/g, '""')}"`;
+
+    const csv = [
+        ["Category", "Tasks", "Net / Task", "Estimated Net Value"],
+        ...rows
+    ].map(row => row.map(csvCell).join(",")).join("\r\n");
+
+    const url = URL.createObjectURL(
+        new Blob([csv], { type: "text/csv;charset=utf-8;" })
+    );
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "ai-ledger-profitability.csv";
+    link.click();
+
+    URL.revokeObjectURL(url);
+});
+// RISK ANALYSIS CSV EXPORT
+document.getElementById("export-risk").addEventListener("click", () => {
+    if (!exportRows.length) {
+        alert("No risk data available to export.");
+        return;
+    }
+
+    const rows = exportRows.map(row => {
+        const category = getValue(row, ["category", "task_category", "name"]);
+        const tasks = Number(getValue(row, ["tasks", "task_count", "total_tasks"]));
+
+        let errorRate = Number(getValue(row, ["escaped_error_rate"])) || 0;
+        let reviewBurden = Number(getValue(row, ["review_burden"])) || 0;
+
+        if (errorRate <= 1) errorRate *= 100;
+        if (reviewBurden <= 1) reviewBurden *= 100;
+
+        const riskLevel =
+            errorRate >= 2 ? "HIGH" :
+            errorRate >= 1 ? "MEDIUM" : "LOW";
+
+        return [
+            category,
+            tasks,
+            errorRate.toFixed(2) + "%",
+            reviewBurden.toFixed(2) + "%",
+            riskLevel,
+            getValue(row, ["verdict"]) || "REVIEW"
+        ];
+    });
+
+    const csvCell = value =>
+        `"${String(value ?? "").replace(/"/g, '""')}"`;
+
+    const csv = [
+        ["Category", "Tasks", "Escaped Error Rate", "Review Burden", "Risk Level", "Model Verdict"],
+        ...rows
+    ].map(row => row.map(csvCell).join(",")).join("\r\n");
+
+    const url = URL.createObjectURL(
+        new Blob([csv], { type: "text/csv;charset=utf-8;" })
+    );
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "ai-ledger-risk-analysis.csv";
+    link.click();
+
+    URL.revokeObjectURL(url);
+});
+// CATEGORY HEATMAP CSV EXPORT
+document.getElementById("export-heatmap").addEventListener("click", () => {
+    if (!exportRows.length) {
+        alert("No heatmap data available to export.");
+        return;
+    }
+
+    const rows = exportRows.map(row => {
+        const category = getValue(row, ["category", "task_category", "name"]);
+
+        let errorRate = Number(getValue(row, ["escaped_error_rate"])) || 0;
+        let reviewBurden = Number(getValue(row, ["review_burden"])) || 0;
+
+        if (errorRate <= 1) errorRate *= 100;
+        if (reviewBurden <= 1) reviewBurden *= 100;
+
+        const riskLevel =
+            errorRate >= 2 ? "HIGH" :
+            errorRate >= 1 ? "MEDIUM" : "LOW";
+
+        return [
+            category,
+            errorRate.toFixed(2) + "%",
+            reviewBurden.toFixed(2) + "%",
+            riskLevel,
+            getValue(row, ["verdict"]) || "REVIEW"
+        ];
+    });
+
+    const csvCell = value =>
+        `"${String(value ?? "").replace(/"/g, '""')}"`;
+
+    const csv = [
+        ["Category", "Escaped Error Rate", "Review Burden", "Risk Level", "Model Verdict"],
+        ...rows
+    ].map(row => row.map(csvCell).join(",")).join("\r\n");
+
+    const url = URL.createObjectURL(
+        new Blob([csv], { type: "text/csv;charset=utf-8;" })
+    );
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "ai-ledger-category-heatmap.csv";
+    link.click();
+
+    URL.revokeObjectURL(url);
+});
+// RECOMMENDATIONS CSV EXPORT
+document.getElementById("export-recommendations").addEventListener("click", () => {
+    if (!exportRows.length) {
+        alert("No recommendation data available to export.");
+        return;
+    }
+
+    const rows = exportRows.map(row => {
+        const category = getValue(row, ["category", "task_category", "name"]);
+
+        let errorRate = Number(getValue(row, ["escaped_error_rate"])) || 0;
+        let reviewBurden = Number(getValue(row, ["review_burden"])) || 0;
+
+        if (errorRate <= 1) errorRate *= 100;
+        if (reviewBurden <= 1) reviewBurden *= 100;
+
+        let priority;
+        let signal;
+        let action;
+
+        if (errorRate >= 2) {
+            priority = "HIGH";
+            signal = `Escaped errors: ${errorRate.toFixed(2)}%`;
+            action = "Keep human review and investigate errors";
+        } else if (reviewBurden >= 30) {
+            priority = "MEDIUM";
+            signal = `Review burden: ${reviewBurden.toFixed(2)}%`;
+            action = "Review automation opportunities";
+        } else {
+            priority = "LOW";
+            signal = "Low operational risk";
+            action = "Continue automation with monitoring";
+        }
+
+        return [category, priority, signal, action];
+    });
+
+    const csvCell = value =>
+        `"${String(value ?? "").replace(/"/g, '""')}"`;
+
+    const csv = [
+        ["Category", "Priority", "Key Signal", "Recommended Action"],
+        ...rows
+    ].map(row => row.map(csvCell).join(",")).join("\r\n");
+
+    const url = URL.createObjectURL(
+        new Blob([csv], { type: "text/csv;charset=utf-8;" })
+    );
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "ai-ledger-recommendations.csv";
+    link.click();
+
+    URL.revokeObjectURL(url);
+});
+// CATEGORY TRIAGE TAB SWITCHING
+const categoryTabs = document.querySelectorAll(".category-tab");
+const categoryPanels = document.querySelectorAll(".category-panel");
+
+categoryTabs.forEach(tab => {
+    tab.addEventListener("click", () => {
+        const target = tab.dataset.tab;
+        const targetPanel = document.querySelector(
+            `.category-panel[data-panel="${target}"]`
+        );
+
+        // Switch only when the target panel exists
+        if (!targetPanel) return;
+
+        categoryTabs.forEach(item => {
+            item.classList.remove("active");
+        });
+
+        categoryPanels.forEach(panel => {
+            panel.classList.remove("active");
+        });
+
+        tab.classList.add("active");
+        targetPanel.classList.add("active");
+    });
+});
     loadCategories();
   </script>
 </body>
