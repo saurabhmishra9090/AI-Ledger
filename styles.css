@@ -2429,3 +2429,161 @@ tbody tr:hover {
 .category-panel.active {
     display: block;
 }
+/* Task Ledger Banner */
+.task-ledger-banner {
+    width: 100%;
+    height: auto;
+    padding: 0;
+    margin: 18px 0 24px;
+    overflow: hidden;
+    border: 1px solid rgba(232, 75, 216, 0.35);
+    border-radius: 14px;
+    line-height: 0;
+}
+
+.task-ledger-banner img {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: contain;
+    object-position: center;
+    vertical-align: top;
+}
+/* Fix Task Ledger Banner Empty Space */
+.page-banner.task-ledger-banner {
+    width: 100%;
+    height: auto;
+    min-height: 0;
+    padding: 0;
+    margin: 18px 0 24px;
+    display: block;
+    overflow: hidden;
+}
+
+.page-banner.task-ledger-banner img {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: contain;
+    vertical-align: top;
+}
+/* Task Ledger Banner - Compact Layout */
+.page-banner.task-ledger-banner {
+    width: 100%;
+    height: 190px !important;
+    min-height: 190px !important;
+   padding: 8px !important;
+box-sizing: border-box;
+    margin: 18px 0 24px !important;
+    overflow: hidden;
+    display: block;
+    border-radius: 14px;
+}
+
+.page-banner.task-ledger-banner img {
+    width: 100%;
+    height: 100% !important;
+    display: block;
+   object-fit: cover;
+    object-position: center;
+}
+/* TASK LEDGER - TRANSACTION TABLE DESIGN */
+
+#ledger-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    min-width: 900px;
+    background: rgba(42, 8, 40, 0.35);
+}
+
+#ledger-table thead th {
+    background: #2A0828;
+    color: #D8C4D5;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 15px 16px;
+    border-bottom: 1px solid rgba(232, 75, 216, 0.25);
+    white-space: nowrap;
+}
+
+#ledger-table tbody td {
+    padding: 15px 16px;
+    font-size: 15px;
+    font-weight: 600;
+    color: #F4EAF3;
+    border-bottom: 1px solid rgba(232, 75, 216, 0.13);
+    white-space: nowrap;
+}
+
+#ledger-table tbody tr {
+    transition: background 0.2s ease;
+}
+
+#ledger-table tbody tr:hover {
+    background: rgba(232, 75, 216, 0.09);
+}
+
+#ledger-table tbody tr:last-child td {
+    border-bottom: none;
+}
+/* Task Ledger Category Badges */
+.ledger-category-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 5px 11px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    border: 1px solid transparent;
+}
+
+.ledger-category-badge.account {
+    color: #B99AFF;
+    background: rgba(185, 154, 255, 0.12);
+    border-color: rgba(185, 154, 255, 0.3);
+}
+
+.ledger-category-badge.billing {
+    color: #42D6B0;
+    background: rgba(66, 214, 176, 0.12);
+    border-color: rgba(66, 214, 176, 0.3);
+}
+
+.ledger-category-badge.complaints {
+    color: #FF5C7A;
+    background: rgba(255, 92, 122, 0.12);
+    border-color: rgba(255, 92, 122, 0.3);
+}
+
+.ledger-category-badge.returns {
+    color: #FFBD4A;
+    background: rgba(255, 189, 74, 0.12);
+    border-color: rgba(255, 189, 74, 0.3);
+}
+
+.ledger-category-badge.technical {
+    color: #54B8FF;
+    background: rgba(84, 184, 255, 0.12);
+    border-color: rgba(84, 184, 255, 0.3);
+}
+/* Assumptions Page Banner */
+.assumptions-hero {
+    width: 100%;
+    margin: 0 0 24px;
+    border: 1px solid rgba(232, 75, 216, 0.35);
+    border-radius: 18px;
+    overflow: hidden;
+    line-height: 0;
+}
+
+.assumptions-hero img {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    object-fit: contain;
+}

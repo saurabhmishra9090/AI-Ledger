@@ -22,15 +22,23 @@ EXPORT_DIR = ROOT / "exports"
 SEED = 42
 N_SIMULATIONS = 2_000
 
-# Assumption parameters — not measured business facts.
-HOURLY_RATE = 30.0
-SETUP_COST = 2_000.0
-AI_COST_PER_TASK = 0.02
-ESCAPED_ERROR_COST = 40.0
-REVIEW_CATCH_RATE = 0.85
+# Load centralized assumptions from project root.
+ASSUMPTIONS_FILE = ROOT / "assumptions.json"
 
-# Accuracy uncertainty: ±2 percentage points around each category
-# baseline assumption. This is a modelling choice, not empirical evidence.
+with ASSUMPTIONS_FILE.open("r", encoding="utf-8") as file:
+    ASSUMPTIONS = json.load(file)
+
+# Assumption parameters - not measured business facts.
+HOURLY_RATE = float(ASSUMPTIONS["hourly_rate"])
+SETUP_COST = float(ASSUMPTIONS["setup_cost"])
+AI_COST_PER_TASK = float(ASSUMPTIONS["ai_cost_per_task"])
+ESCAPED_ERROR_COST = float(ASSUMPTIONS["escaped_error_cost"])
+REVIEW_CATCH_RATE = float(ASSUMPTIONS["review_catch_rate"])
+
+TARGET_REVIEW_MINUTES = float(ASSUMPTIONS["target_review_minutes"])
+TARGET_REWORK_MINUTES = float(ASSUMPTIONS["target_rework_minutes"])
+
+# Accuracy uncertainty remains a fixed modelling assumption.
 ACCURACY_UNCERTAINTY = 0.02
 
 
@@ -93,14 +101,42 @@ def calculate_scenario(
         tasks["baseline_min"].to_numpy(dtype=float) / 60.0
     ) * hourly_rate
 
+        # Scale existing review and rework times proportionally
+    # while preserving task/category-level differences.
+    existing_review_minutes = (
+    tasks["review_min"].to_numpy(dtype=float)
+)
+
+    existing_rework_minutes = (
+       tasks["rework_min"].to_numpy(dtype=float)
+    )
+
+    review_scale = (
+        TARGET_REVIEW_MINUTES / existing_review_minutes.mean()
+        if existing_review_minutes.mean() > 0
+        else 1.0
+    )
+
+    rework_scale = (
+        TARGET_REWORK_MINUTES / existing_rework_minutes.mean()
+        if existing_rework_minutes.mean() > 0
+        else 1.0
+    )
+
+    adjusted_review_minutes = existing_review_minutes * review_scale
+    adjusted_rework_minutes = existing_rework_minutes * rework_scale
+
     review_cost = (
-        (tasks["review_min"].to_numpy(dtype=float)
-         + tasks["edit_min"].to_numpy(dtype=float)) / 60.0
+        (
+            adjusted_review_minutes
+            + tasks["edit_min"].to_numpy(dtype=float)
+        )
+        / 60.0
     ) * hourly_rate
 
     rework_cost = (
         caught_probability
-        * tasks["assumed_rework_min"].to_numpy(dtype=float)
+        * adjusted_rework_minutes
         / 60.0
         * hourly_rate
     )

@@ -466,7 +466,11 @@ function renderTopCategories() {
 
       return `
         <tr>
-          <td>${escapeHTML(row.category)}</td>
+     <td>
+  <span class="ledger-category-badge ${String(row.category).toLowerCase()}">
+    ${escapeHTML(row.category)}
+  </span>
+</td>
           <td>${number(row.tasks, 0)}</td>
           <td>${money(row.net_per_task)}</td>
           <td>${percent(row.escaped_error_rate)}</td>
@@ -516,7 +520,11 @@ function renderTopCategories() {
     tbody.innerHTML = pageRows.map(row => `
       <tr>
         <td>${number(row.task_id, 0)}</td>
-        <td>${escapeHTML(row.category)}</td>
+        <td>
+  <span class="ledger-category-badge ${String(row.category).toLowerCase()}">
+    ${escapeHTML(row.category)}
+  </span>
+</td>
         <td>${money(row.baseline_cost)}</td>
         <td>${money(row.ai_usage_cost)}</td>
         <td>${money(row.review_cost)}</td>

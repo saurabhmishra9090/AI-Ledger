@@ -14,15 +14,19 @@ FROM read_csv_auto(
 );
 
 -- 2. Central model assumptions
+-- 2. Central model assumptions
 CREATE OR REPLACE TABLE params AS
 SELECT
-    30.0   AS hourly_rate,
-    40.0   AS escaped_error_cost,
-    2000.0 AS setup_cost,
-    0.02   AS default_ai_cost,
-    0.85   AS review_catch_rate,
-    'ASSUMPTION' AS parameter_label;
-
+    CAST(hourly_rate AS DOUBLE) AS hourly_rate,
+    CAST(escaped_error_cost AS DOUBLE) AS escaped_error_cost,
+    CAST(setup_cost AS DOUBLE) AS setup_cost,
+    CAST(ai_cost_per_task AS DOUBLE) AS default_ai_cost,
+    CAST(review_catch_rate AS DOUBLE) AS review_catch_rate,
+    CAST(target_review_minutes AS DOUBLE) AS target_review_minutes,
+    CAST(target_rework_minutes AS DOUBLE) AS target_rework_minutes,
+    configuration_label AS parameter_label,
+    data_label
+FROM read_json_auto('assumptions.json');
 -- 3. Category configuration
 CREATE OR REPLACE TABLE dim_category AS
 SELECT *
@@ -45,6 +49,15 @@ FROM (
 
 -- 4. Task-level cost and value ledger
 CREATE OR REPLACE VIEW ledger AS
+WITH time_scaling AS (
+    SELECT
+        (SELECT target_review_minutes FROM params)
+        / NULLIF(AVG(f.review_min), 0) AS review_scale,
+
+        (SELECT target_rework_minutes FROM params)
+        / NULLIF(AVG(f.rework_min), 0) AS rework_scale
+    FROM fact_task f
+)
 SELECT
     f.task_id,
     f.category,
@@ -58,11 +71,16 @@ SELECT
 
     f.ai_cost AS ai_usage_cost,
 
-    (f.review_min + f.edit_min) / 60.0
-        * p.hourly_rate AS review_cost,
+   (
+    (f.review_min * ts.review_scale) + f.edit_min
+) / 60.0 * p.hourly_rate AS review_cost,
 
-    f.rework_min / 60.0
-        * p.hourly_rate AS rework_cost,
+  CASE
+    WHEN f.review_caught THEN
+        f.rework_min * ts.rework_scale / 60.0
+        * p.hourly_rate
+    ELSE 0.0
+END AS rework_cost,
 
     CASE
         WHEN f.escaped
@@ -72,8 +90,14 @@ SELECT
 
     d.baseline_min / 60.0 * p.hourly_rate
         - f.ai_cost
-        - (f.review_min + f.edit_min) / 60.0 * p.hourly_rate
-        - f.rework_min / 60.0 * p.hourly_rate
+    - ((f.review_min * ts.review_scale) + f.edit_min)
+    / 60.0 * p.hourly_rate
+  - CASE
+    WHEN f.review_caught THEN
+        (f.rework_min * ts.rework_scale)
+        / 60.0 * p.hourly_rate
+    ELSE 0.0
+  END
         - CASE
             WHEN f.escaped
             THEN f.error_severity * p.escaped_error_cost
@@ -82,7 +106,8 @@ SELECT
 
 FROM fact_task f
 JOIN dim_category d USING (category)
-CROSS JOIN params p;
+CROSS JOIN params p
+CROSS JOIN time_scaling ts;
 
 -- 5. Category-level decision support
 CREATE OR REPLACE VIEW category_summary AS

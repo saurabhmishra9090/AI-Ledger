@@ -105,6 +105,9 @@
         <div class="data-badge">SYNTHETIC SIMULATION</div>
       </div>
     </header>
+    <div class="page-banner task-ledger-banner">
+    <img src="assets/task-ledger-banner.png" alt="Task Ledger">
+</div>
 
     <section class="dashboard-section">
       <div class="section-heading">
@@ -194,15 +197,17 @@
   let filteredRows = [];
   let page = 1;
 
-  const aliases = {
-    id: ["task_id", "id", "taskId", "record_id"],
-    category: ["category", "task_category"],
-    ai: ["ai_usage_cost", "ai_cost", "total_ai_cost"],
-    review: ["review_cost", "human_review_cost", "total_review_cost"],
-    rework: ["rework_cost", "total_rework_cost"],
-    error: ["error_cost", "escaped_error_cost", "total_error_cost"],
-    net: ["net_value", "net_value_after_setup", "total_net_value"]
-  };
+  
+const aliases = {
+  id: ["task_id", "id", "taskId", "record_id"],
+  category: ["category", "task_category"],
+  ai: ["ai_cost", "ai_usage_cost", "total_ai_cost"],
+  review: ["review_cost", "human_review_cost", "total_review_cost"],
+  rework: ["rework_cost", "total_rework_cost"],
+  error: ["error_cost", "escaped_error_cost", "total_error_cost"],
+  net: ["net_value", "net_value_after_setup", "total_net_value"]
+};
+
 
   function value(row, names) {
     for (const name of names) {
@@ -253,11 +258,23 @@
           money(value(row, aliases.error)),
           money(value(row, aliases.net))
         ];
-        for (const item of values) {
-          const td = document.createElement("td");
-          td.textContent = String(item);
-          tr.appendChild(td);
-        }
+        values.forEach((item, index) => {
+    const td = document.createElement("td");
+
+    if (index === 1) {
+        const badge = document.createElement("span");
+        const categoryName = String(item);
+
+        badge.className = `ledger-category-badge ${categoryName.toLowerCase()}`;
+        badge.textContent = categoryName;
+
+        td.appendChild(badge);
+    } else {
+        td.textContent = String(item);
+    }
+
+    tr.appendChild(td);
+});
         body.appendChild(tr);
       }
     }
@@ -270,12 +287,13 @@
   }
 
   async function loadData() {
-    const paths = [
-      "DATA/raw/fact_task.csv",
-      "DATA/processed/fact_task.csv",
-      "EXPORTS/task_ledger.json",
-      "EXPORTS/task_records.json"
-    ];
+   const paths = [
+    "EXPORTS/ledger.json",
+    "DATA/raw/fact_task.csv",
+    "DATA/processed/fact_task.csv",
+    "EXPORTS/task_ledger.json",
+    "EXPORTS/task_records.json"
+];
 
     for (const path of paths) {
       try {
