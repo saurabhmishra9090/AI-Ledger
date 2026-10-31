@@ -347,11 +347,29 @@ const values = [
             money(totalNetValue)
         ];
 
-        values.forEach(value => {
-            const td = document.createElement("td");
-            td.textContent = String(value);
-            tr.appendChild(td);
-        });
+       values.forEach((value, index) => {
+    const td = document.createElement("td");
+    td.textContent = String(value);
+
+    // Risk Level colour
+    if (index === 4) {
+        td.style.fontWeight = "700";
+        td.style.borderRadius = "6px";
+
+        if (value === "HIGH") {
+            td.style.color = "#ff5c7a";
+            td.style.background = "rgba(255, 92, 122, 0.15)";
+        } else if (value === "MEDIUM") {
+            td.style.color = "#ffbd4a";
+            td.style.background = "rgba(255, 189, 74, 0.15)";
+        } else {
+            td.style.color = "#35d6a0";
+            td.style.background = "rgba(53, 214, 160, 0.12)";
+        }
+    }
+
+    tr.appendChild(td);
+});
 
         body.appendChild(tr);
     });
@@ -397,11 +415,29 @@ function renderRiskAnalysis(rows) {
 
         const tr = document.createElement("tr");
 
-        values.forEach(value => {
-            const td = document.createElement("td");
-            td.textContent = String(value);
-            tr.appendChild(td);
-        });
+        values.forEach((value, index) => {
+    const td = document.createElement("td");
+    td.textContent = String(value);
+
+    // Risk Level colour
+    if (index === 4) {
+        td.style.fontWeight = "700";
+        td.style.borderRadius = "6px";
+
+        if (value === "HIGH") {
+            td.style.color = "#ff5c7a";
+            td.style.background = "rgba(255, 92, 122, 0.15)";
+        } else if (value === "MEDIUM") {
+            td.style.color = "#ffbd4a";
+            td.style.background = "rgba(255, 189, 74, 0.15)";
+        } else {
+            td.style.color = "#35d6a0";
+            td.style.background = "rgba(53, 214, 160, 0.12)";
+        }
+    }
+
+    tr.appendChild(td);
+});
 
         body.appendChild(tr);
     });
@@ -445,20 +481,53 @@ function renderHeatmap(rows) {
             verdict
         ];
 
-        values.forEach((value, index) => {
-            const td = document.createElement("td");
-            td.textContent = String(value);
+       values.forEach((value, index) => {
+    const td = document.createElement("td");
+    td.textContent = String(value);
 
-            if (index === 3) {
-                td.style.fontWeight = "700";
-                td.style.color =
-                    riskLevel === "HIGH" ? "#ff5c8a" :
-                    riskLevel === "MEDIUM" ? "#ffbd4a" :
-                    "#35d6a0";
-            }
+    // Escaped Error Rate heatmap
+    if (index === 1) {
+        td.style.fontWeight = "700";
 
-            tr.appendChild(td);
-        });
+        if (errorRate >= 2) {
+            td.style.background = "rgba(255, 92, 122, 0.20)";
+            td.style.color = "#ff5c7a";
+        } else if (errorRate >= 1) {
+            td.style.background = "rgba(255, 189, 74, 0.18)";
+            td.style.color = "#ffbd4a";
+        } else {
+            td.style.background = "rgba(53, 214, 160, 0.14)";
+            td.style.color = "#35d6a0";
+        }
+    }
+
+    // Review Burden heatmap
+    if (index === 2) {
+        td.style.fontWeight = "700";
+
+        if (reviewBurden >= 30) {
+            td.style.background = "rgba(255, 92, 122, 0.20)";
+            td.style.color = "#ff5c7a";
+        } else if (reviewBurden >= 25) {
+            td.style.background = "rgba(255, 189, 74, 0.18)";
+            td.style.color = "#ffbd4a";
+        } else {
+            td.style.background = "rgba(53, 214, 160, 0.14)";
+            td.style.color = "#35d6a0";
+        }
+    }
+
+    // Risk Level indicator
+    if (index === 3) {
+        td.style.fontWeight = "700";
+        td.style.color =
+            riskLevel === "HIGH" ? "#ff5c7a" :
+            riskLevel === "MEDIUM" ? "#ffbd4a" :
+            "#35d6a0";
+    }
+
+    tr.appendChild(td);
+});
 
         body.appendChild(tr);
     });
@@ -506,12 +575,40 @@ function renderRecommendations(rows) {
 
         const tr = document.createElement("tr");
 
-        [category, priority, signal, action].forEach(value => {
-            const td = document.createElement("td");
-            td.textContent = String(value);
-            tr.appendChild(td);
-        });
+        [category, priority, signal, action].forEach((value, index) => {
+    const td = document.createElement("td");
 
+    if (index === 1) {
+        const badge = document.createElement("span");
+        badge.textContent = value;
+        badge.style.display = "inline-block";
+        badge.style.padding = "5px 12px";
+        badge.style.borderRadius = "20px";
+        badge.style.fontSize = "11px";
+        badge.style.fontWeight = "700";
+        badge.style.letterSpacing = "0.5px";
+
+        if (value === "HIGH") {
+            badge.style.color = "#ff5c7a";
+            badge.style.background = "rgba(255, 92, 122, 0.15)";
+            badge.style.border = "1px solid rgba(255, 92, 122, 0.35)";
+        } else if (value === "MEDIUM") {
+            badge.style.color = "#ffbd4a";
+            badge.style.background = "rgba(255, 189, 74, 0.15)";
+            badge.style.border = "1px solid rgba(255, 189, 74, 0.35)";
+        } else {
+            badge.style.color = "#35d6a0";
+            badge.style.background = "rgba(53, 214, 160, 0.15)";
+            badge.style.border = "1px solid rgba(53, 214, 160, 0.35)";
+        }
+
+        td.appendChild(badge);
+    } else {
+        td.textContent = String(value);
+    }
+
+    tr.appendChild(td);
+});
         body.appendChild(tr);
     });
 }
