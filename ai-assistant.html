@@ -162,6 +162,12 @@
     </header>
 
     <section class="dashboard-section">
+      <div class="assistant-hero-banner">
+  <img
+    src="assets/ai-assistant-banner.png"
+    alt="AI Ledger Assistant — Analytics and Model Intelligence"
+  >
+</div>
       <div class="section-heading">
         <div>
           <div class="eyebrow">MODEL INTERPRETATION</div>
@@ -250,6 +256,46 @@
   const form = document.getElementById("chat-form");
   const input = document.getElementById("chat-input");
   const messages = document.getElementById("chat-messages");
+  let assistantData = {
+    simulation: null,
+    costs: null,
+    categories: null,
+    sensitivity: null
+};
+
+async function loadAssistantData() {
+    try {
+const [simulationResponse, costsResponse, categoryResponse, sensitivityResponse] = await Promise.all([
+    fetch("EXPORTS/simulation_summary.json", {
+        cache: "no-store"
+    }),
+    fetch("EXPORTS/cost_breakdown.json", {
+        cache: "no-store"
+    }),
+    fetch("EXPORTS/category_summary.json", {
+        cache: "no-store"
+    }),
+    fetch("EXPORTS/sensitivity.json", {
+          cache: "no-store"
+})
+]);
+
+   if (!simulationResponse.ok || !costsResponse.ok || !categoryResponse.ok || !sensitivityResponse.ok) {
+            throw new Error("Unable to load project exports.");
+        }
+
+        assistantData.simulation = await simulationResponse.json();
+        assistantData.costs = await costsResponse.json();
+        assistantData.categories = await categoryResponse.json();
+        assistantData.sensitivity = await sensitivityResponse.json();
+
+        console.log("AI Assistant data loaded:", assistantData);
+
+    } catch (error) {
+        console.error("Assistant data loading failed:", error);
+    }
+}
+loadAssistantData();
 
   function addMessage(role, text) {
     const message = document.createElement("div");
@@ -271,27 +317,163 @@
     const q = question.toLowerCase();
 
     if (q.includes("monte carlo") || q.includes("simulation results") ||
-        q.includes("summarize") || q.includes("summary")) {
-      return "The saved synthetic Monte Carlo output reports a P10 value of ₹38,676.21, a median (P50) of ₹42,072.73, a P90 value of ₹45,639.91 and a mean of ₹42,132.88. These figures describe the model's simulated outcomes, not guaranteed savings or verified business results.";
+    q.includes("summarize") || q.includes("summary")) {
+
+    const simulation = assistantData.simulation;
+
+    if (!simulation) {
+        return "Simulation data is not available. Please refresh the page.";
     }
 
-    if (q.includes("escaped error") || q.includes("highest error") ||
-        q.includes("error rate") || q.includes("category")) {
-      return "The saved category summary reports these escaped-error rates: Complaints 3.15%, Technical 1.70%, Returns 1.43%, Account 0.72%, and Billing 0.58%. Complaints has the highest rate in this synthetic sample. Review the category data and assumptions before making operational decisions.";
+    const result = simulation.net_value_after_setup;
+
+    return `Here is the latest Monte Carlo simulation summary:
+
+P10: ₹${result.p10.toLocaleString("en-IN")}
+Median (P50): ₹${result.p50.toLocaleString("en-IN")}
+P90: ₹${result.p90.toLocaleString("en-IN")}
+Mean: ₹${result.mean.toLocaleString("en-IN")}
+
+Probability of positive value: ${(result.probability_positive * 100).toFixed(2)}%
+
+These are synthetic estimates based on the current model assumptions, not guaranteed business savings.`;
+}
+
+    
+if (q.includes("escaped error") || q.includes("highest error") ||
+    q.includes("error rate") || q.includes("category")) {
+
+    const categories = assistantData.categories;
+
+    if (!categories || categories.length === 0) {
+        return "Category data is not available. Please refresh the page.";
     }
 
-    if (q.includes("sensitivity") || q.includes("sensitive")) {
-      return "The saved sensitivity analysis reports a base value of ₹42,107.59. Accuracy -2 percentage points gives ₹37,737.59; accuracy +2 points gives ₹46,477.59. Hourly cost -20% gives ₹30,256.47, while +20% gives ₹53,958.71. Doubling AI cost gives ₹41,707.59, and doubling error cost gives ₹27,359.59. These are assumption-dependent model outputs.";
+    const sortedCategories = [...categories].sort(
+        (a, b) => b.escaped_error_rate - a.escaped_error_rate
+    );
+
+    const categoryDetails = sortedCategories.map(item =>
+        `${item.category}: ${(item.escaped_error_rate * 100).toFixed(2)}% escaped-error rate | ${item.verdict}`
+    ).join("\n");
+
+    const highest = sortedCategories[0];
+
+    return `Here is the latest category risk analysis:
+
+${categoryDetails}
+
+Highest escaped-error rate: ${highest.category} (${(highest.escaped_error_rate * 100).toFixed(2)}%).
+
+Net value per task for ${highest.category}: ₹${Number(highest.net_per_task).toFixed(2)}.
+
+These figures are based on synthetic simulation data, not verified business results.`;
+}
+
+ 
+if (q.includes("sensitivity") || q.includes("sensitive")) {
+
+    const scenarios = assistantData.sensitivity;
+
+    if (!scenarios || scenarios.length === 0) {
+        return "Sensitivity data is not available. Please refresh the page.";
     }
 
-    if (q.includes("limitation") || q.includes("assumption") ||
-        q.includes("reliable") || q.includes("real world")) {
-      return "This project uses synthetic task records and illustrative cost, review and error assumptions. Its results depend on those inputs and should not be presented as measured business savings. Validate assumptions against real operational data and independently test the calculation logic before using it for decisions.";
+    const base = scenarios.find(item =>
+        item.scenario.toLowerCase() === "base case"
+    );
+
+    if (!base) {
+        return "Base case data is missing from sensitivity analysis.";
     }
 
-    if (q.includes("cost") || q.includes("expense") || q.includes("value")) {
-      return "The saved model summary reports a median net value of ₹42,072.73. Its cost breakdown includes AI cost ₹400, escaped errors ₹15,703.97, review cost ₹28,113.16 and rework cost ₹5,354.33. These are synthetic estimates; the net value should be interpreted alongside the model assumptions.";
+    const scenarioDetails = scenarios
+        .filter(item => item !== base)
+        .map(item => {
+            const difference =
+                item.net_value_after_setup - base.net_value_after_setup;
+
+            const direction = difference >= 0 ? "increase" : "decrease";
+
+            return `${item.scenario}: ₹${item.net_value_after_setup.toLocaleString("en-IN", {
+                maximumFractionDigits: 2
+            })} (${direction} of ₹${Math.abs(difference).toLocaleString("en-IN", {
+                maximumFractionDigits: 2
+            })})`;
+        })
+        .join("\n");
+
+    return `Here is the latest sensitivity analysis:
+
+Base case net value after setup: ₹${base.net_value_after_setup.toLocaleString("en-IN", {
+        maximumFractionDigits: 2
+    })}
+
+${scenarioDetails}
+
+These are synthetic scenario estimates, not verified real-world results.`;
+}
+
+
+
+if (q.includes("limitation") || q.includes("assumption") ||
+    q.includes("reliable") || q.includes("real world")) {
+
+    return `AI Ledger Model Limitations:
+
+1. Synthetic dataset:
+The model uses 20,000 simulated task records, not actual company transactions.
+
+2. Assumption-based inputs:
+Hourly labour cost, AI processing cost, escaped-error cost, review time and rework time are configurable assumptions.
+
+3. Category assumptions:
+Accuracy, error severity, review time and task distribution are simulated for five categories.
+
+4. Monte Carlo uncertainty:
+Simulation results represent possible outcomes under the configured assumptions. They are not guaranteed savings.
+
+5. No real-world validation:
+The model has not been validated against a live business deployment or measured pilot results.
+
+Recommendation:
+Validate these assumptions using real operational data and a controlled pilot before making financial or automation decisions.`;
+}
+
+   
+if (q.includes("cost") || q.includes("expense") || q.includes("value")) {
+    const costs = assistantData.costs;
+    const simulation = assistantData.simulation;
+
+    if (!costs || !simulation) {
+        return "Cost or simulation data is not available. Please refresh the page.";
     }
+
+    const costDetails = costs.map(item =>
+        `${item.component}: ₹${Number(item.cost).toLocaleString("en-IN", {
+            maximumFractionDigits: 2
+        })}`
+    ).join("\n");
+
+    const totalCost = costs.reduce(
+        (total, item) => total + Number(item.cost),
+        0
+    );
+
+    return `Here is the latest AI Ledger cost breakdown:
+
+${costDetails}
+
+Total operating cost: ₹${totalCost.toLocaleString("en-IN", {
+        maximumFractionDigits: 2
+    })}
+
+Median net value after setup: ₹${simulation.net_value_after_setup.p50.toLocaleString("en-IN", {
+        maximumFractionDigits: 2
+    })}
+
+These are synthetic estimates based on the current model assumptions.`;
+}
 
     return "I can currently answer questions about the saved Monte Carlo results, sensitivity analysis, category escaped-error rates, cost breakdown and model limitations. Try asking about one of those topics. This local demo does not call an external AI service.";
   }

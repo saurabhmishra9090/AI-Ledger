@@ -2674,3 +2674,16 @@ box-sizing: border-box;
         grid-template-columns: 1fr;
     }
 }
+.assistant-hero-banner {
+  width: 100%;
+  margin-bottom: 28px;
+  overflow: hidden;
+  border-radius: 18px;
+  border: 1px solid rgba(230, 72, 220, 0.4);
+}
+
+.assistant-hero-banner img {
+  display: block;
+  width: 100%;
+  height: auto;
+}

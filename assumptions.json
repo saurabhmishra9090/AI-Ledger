@@ -1,5 +1,5 @@
 {
-    "hourly_rate": 30.0,
+    "hourly_rate": 40.0,
     "ai_cost_per_task": 0.02,
     "escaped_error_cost": 40.0,
     "setup_cost": 2000.0,

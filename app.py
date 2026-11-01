@@ -4,6 +4,7 @@ import json
 import math
 import subprocess
 import sys
+import shutil
 import os
 
 ROOT = Path(__file__).resolve().parent
@@ -22,6 +23,7 @@ def home():
 
 @app.get("/api/health")
 def health():
+    
     return jsonify({
         "status": "online",
         "application": "AI Ledger",
@@ -96,9 +98,10 @@ def recalculate():
         process_env["PYTHONIOENCODING"] = "utf-8"
 
         for script in [
-            "scripts/run_analysis.py",
-            "scripts/simulation.py"
-        ]:
+    "scripts/generate_data.py",
+    "scripts/run_analysis.py",
+    "scripts/simulation.py"
+]:
             process = subprocess.run(
                 [sys.executable, str(ROOT / script)],
                 cwd=ROOT,
@@ -119,6 +122,43 @@ timeout=600
                     "error": process.stderr,
                     "output": process.stdout
                 }), 500
+             # Save the latest successful run as CURRENT_SCENARIO.
+        scenario_dir = ROOT / "EXPORTS" / "SCENARIOS" / "CURRENT_SCENARIO"
+        export_dir = ROOT / "exports"
+
+        export_files = [
+            "category_summary.json",
+            "cost_breakdown.json",
+            "ledger.json",
+            "cumulative_payback.json",
+            "simulation_summary.json",
+            "sensitivity.json",
+            "monte_carlo.json"
+        ]
+
+        # Verify every expected export exists before updating the snapshot.
+        missing_files = [
+            filename for filename in export_files
+            if not (export_dir / filename).is_file()
+        ]
+
+        if missing_files:
+            raise FileNotFoundError(
+                f"Missing export files: {', '.join(missing_files)}"
+            )
+
+        scenario_dir.mkdir(parents=True, exist_ok=True)
+
+        for filename in export_files:
+            shutil.copy2(
+                export_dir / filename,
+                scenario_dir / filename
+            )
+
+        shutil.copy2(
+            ROOT / "assumptions.json",
+            scenario_dir / "assumptions.json"
+        )       
 
         return jsonify({
             "success": True,

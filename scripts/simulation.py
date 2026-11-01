@@ -135,11 +135,10 @@ def calculate_scenario(
     ) * hourly_rate
 
     rework_cost = (
-        caught_probability
-        * adjusted_rework_minutes
-        / 60.0
-        * hourly_rate
-    )
+    adjusted_rework_minutes
+    / 60.0
+    * hourly_rate
+)
 
     severity = tasks["severity_multiplier"].to_numpy(dtype=float)
     error_cost = (

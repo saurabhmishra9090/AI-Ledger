@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import csv
 import random
+import json
 from pathlib import Path
 
 # Project paths
@@ -21,9 +22,21 @@ OUTPUT_FILE = OUTPUT_DIR / "fact_task.csv"
 SEED = 42
 N_TASKS = 20_000
 
-# Global assumptions — ASSUMPTION, not measured business data.
-AI_COST_PER_TASK = 0.02  # ₹ per task
-REVIEW_CATCH_RATE = 0.85  # fraction of errors caught by review
+# Load centralized assumptions from project root.
+ASSUMPTIONS_FILE = PROJECT_ROOT / "assumptions.json"
+
+with ASSUMPTIONS_FILE.open("r", encoding="utf-8") as file:
+    ASSUMPTIONS = json.load(file)
+
+# Global assumptions - ASSUMPTION, not measured business data.
+AI_COST_PER_TASK = float(ASSUMPTIONS["ai_cost_per_task"])
+REVIEW_CATCH_RATE = float(ASSUMPTIONS["review_catch_rate"])
+
+if AI_COST_PER_TASK < 0:
+    raise ValueError("AI cost per task cannot be negative.")
+
+if not 0 <= REVIEW_CATCH_RATE <= 1:
+    raise ValueError("Review catch rate must be between 0 and 1.")
 
 # Category configuration.
 # Values are ASSUMPTIONS and must be calibrated with pilot data later.
