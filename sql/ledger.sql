@@ -69,7 +69,7 @@ SELECT
     d.baseline_min / 60.0
         * p.hourly_rate AS baseline_cost,
 
-    f.ai_cost AS ai_usage_cost,
+   p.default_ai_cost AS ai_usage_cost,
 
    (
     (f.review_min * ts.review_scale) + f.edit_min
@@ -89,7 +89,7 @@ END AS rework_cost,
     END AS error_cost,
 
     d.baseline_min / 60.0 * p.hourly_rate
-        - f.ai_cost
+       - p.default_ai_cost
     - ((f.review_min * ts.review_scale) + f.edit_min)
     / 60.0 * p.hourly_rate
   - CASE
