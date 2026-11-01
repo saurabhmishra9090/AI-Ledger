@@ -371,7 +371,13 @@ These figures are based on synthetic simulation data, not verified business resu
 }
 
  
-if (q.includes("sensitivity") || q.includes("sensitive")) {
+if (
+    q.includes("sensitivity") ||
+    q.includes("sensitive") ||
+    q.includes("hourly cost") ||
+    q.includes("labour cost") ||
+    q.includes("labor cost")
+) {
 
     const scenarios = assistantData.sensitivity;
 
@@ -415,9 +421,16 @@ These are synthetic scenario estimates, not verified real-world results.`;
 }
 
 
-
-if (q.includes("limitation") || q.includes("assumption") ||
-    q.includes("reliable") || q.includes("real world")) {
+if (
+    q.includes("limitation") ||
+    q.includes("assumption") ||
+    q.includes("reliable") ||
+    q.includes("real world") ||
+    q.includes("real business data") ||
+    q.includes("actual business data") ||
+    q.includes("actual data") ||
+    q.includes("real data")
+) {
 
     return `AI Ledger Model Limitations:
 
@@ -441,7 +454,13 @@ Validate these assumptions using real operational data and a controlled pilot be
 }
 
    
-if (q.includes("cost") || q.includes("expense") || q.includes("value")) {
+if (
+    (q.includes("cost") || q.includes("expense") || q.includes("value")) &&
+    !q.includes("hourly cost") &&
+    !q.includes("labour cost") &&
+    !q.includes("labor cost") &&
+    !q.includes("sensitivity")
+) {
     const costs = assistantData.costs;
     const simulation = assistantData.simulation;
 
