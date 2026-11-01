@@ -485,6 +485,20 @@
 
           <div id="scenario-insight" class="analysis-insight">Comparing scenarios...</div>
         </article>
+        <article class="analysis-card scenario-comparison-card">
+    <h3>Base Case vs Current Scenario</h3>
+    <p>Compare financial performance under both configurations.</p>
+
+    <div id="scenario-comparison-status" class="analysis-insight">
+        Loading scenario comparison...
+    </div>
+
+    <div id="scenario-comparison-content">
+        <div class="analysis-chart">
+            Comparison data will appear here.
+        </div>
+    </div>
+</article>
 
        <article class="analysis-card">
           <h3>Break-even Analysis</h3>
@@ -531,6 +545,20 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     return response.json();
   }
+  async function loadScenarioExport(scenario, filename) {
+    const response = await fetch(
+        `EXPORTS/SCENARIOS/${scenario}/${filename}`,
+        { cache: "no-store" }
+    );
+
+    if (!response.ok) {
+        throw new Error(
+            `${scenario}/${filename} returned HTTP ${response.status}`
+        );
+    }
+
+    return response.json();
+}
 
   function showError(id, message) {
     const element = $(id);
@@ -1170,6 +1198,154 @@ function renderBreakEven(rows) {
       loadExport("sensitivity.json"),
       loadExport("cumulative_payback.json")
     ]);
+    const [
+    baseCosts,
+    currentCosts,
+    baseSensitivity,
+    currentSensitivity,
+    basePayback,
+    currentPayback,
+    baseSimulation,
+    currentSimulation
+] = await Promise.all([
+    loadScenarioExport("BASE_CASE", "cost_breakdown.json"),
+    loadScenarioExport("CURRENT_SCENARIO", "cost_breakdown.json"),
+    loadScenarioExport("BASE_CASE", "sensitivity.json"),
+    loadScenarioExport("CURRENT_SCENARIO", "sensitivity.json"),
+    loadScenarioExport("BASE_CASE", "cumulative_payback.json"),
+    loadScenarioExport("CURRENT_SCENARIO", "cumulative_payback.json"),
+    loadScenarioExport("BASE_CASE", "simulation_summary.json"),
+    loadScenarioExport("CURRENT_SCENARIO", "simulation_summary.json")
+]);
+
+console.log("Scenario comparison data loaded:", {
+    baseCosts, currentCosts,
+    baseSensitivity, currentSensitivity,
+    basePayback, currentPayback,
+    baseSimulation, currentSimulation
+});
+const comparisonStatus = $("scenario-comparison-status");
+const comparisonContent = $("scenario-comparison-content");
+
+const formatCurrency = value =>
+    money(Number(value) || 0);
+
+const getPaybackTask = data => {
+    const result = data.find(
+        row => Number(row.cum_net_after_setup) >= 0
+    );
+    return result ? result.task_id : "Not reached";
+};
+
+const getCostTotal = data =>
+    data.reduce((sum, item) => sum + Number(item.cost || 0), 0);
+
+const baseMonteCarlo = baseSimulation.net_value_after_setup;
+const currentMonteCarlo = currentSimulation.net_value_after_setup;
+
+const basePaybackTask = getPaybackTask(basePayback);
+const currentPaybackTask = getPaybackTask(currentPayback);
+
+const comparisonRows = [
+    ["AI Usage", getCostTotal(baseCosts.filter(x => x.component === "AI usage")), getCostTotal(currentCosts.filter(x => x.component === "AI usage"))],
+    ["Escaped Errors", getCostTotal(baseCosts.filter(x => x.component === "Escaped errors")), getCostTotal(currentCosts.filter(x => x.component === "Escaped errors"))],
+    ["Human Review", getCostTotal(baseCosts.filter(x => x.component === "Review")), getCostTotal(currentCosts.filter(x => x.component === "Review"))],
+    ["Rework", getCostTotal(baseCosts.filter(x => x.component === "Rework")), getCostTotal(currentCosts.filter(x => x.component === "Rework"))]
+];
+
+comparisonStatus.textContent = "Scenario comparison loaded successfully.";
+
+comparisonContent.innerHTML = `
+    <div class="scenario-comparison-grid">
+
+        <div class="comparison-metric">
+            <span>Base Case Median Net Value</span>
+            <strong>${formatCurrency(baseMonteCarlo.p50)}</strong>
+        </div>
+
+        <div class="comparison-metric">
+            <span>Current Scenario Median Net Value</span>
+            <strong>${formatCurrency(currentMonteCarlo.p50)}</strong>
+        </div>
+
+        <div class="comparison-metric">
+            <span>Base Case Payback</span>
+            <strong>Task #${basePaybackTask}</strong>
+        </div>
+
+        <div class="comparison-metric">
+            <span>Current Scenario Payback</span>
+            <strong>Task #${currentPaybackTask}</strong>
+        </div>
+
+    </div>
+
+    <h4>Financial Cost Comparison</h4>
+
+    <div class="table-responsive">
+        <table class="scenario-comparison-table">
+            <thead>
+                <tr>
+                    <th>Cost Component</th>
+                    <th>Base Case</th>
+                    <th>Current Scenario</th>
+                    <th>Difference</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${comparisonRows.map(([label, base, current]) => `
+                    <tr>
+                        <td>${label}</td>
+                        <td>${formatCurrency(base)}</td>
+                        <td>${formatCurrency(current)}</td>
+                        <td>${formatCurrency(current - base)}</td>
+                    </tr>
+                `).join("")}
+            </tbody>
+        </table>
+    </div>
+
+    <h4>Monte Carlo Outcome Comparison</h4>
+
+    <div class="table-responsive">
+        <table class="scenario-comparison-table">
+            <thead>
+                <tr>
+                    <th>Metric</th>
+                    <th>Base Case</th>
+                    <th>Current Scenario</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>P10</td>
+                    <td>${formatCurrency(baseMonteCarlo.p10)}</td>
+                    <td>${formatCurrency(currentMonteCarlo.p10)}</td>
+                </tr>
+                <tr>
+                    <td>P50</td>
+                    <td>${formatCurrency(baseMonteCarlo.p50)}</td>
+                    <td>${formatCurrency(currentMonteCarlo.p50)}</td>
+                </tr>
+                <tr>
+                    <td>P90</td>
+                    <td>${formatCurrency(baseMonteCarlo.p90)}</td>
+                    <td>${formatCurrency(currentMonteCarlo.p90)}</td>
+                </tr>
+                <tr>
+                    <td>Mean</td>
+                    <td>${formatCurrency(baseMonteCarlo.mean)}</td>
+                    <td>${formatCurrency(currentMonteCarlo.mean)}</td>
+                </tr>
+                <tr>
+                    <td>Positive Scenarios</td>
+                    <td>${percent(baseMonteCarlo.probability_positive)}</td>
+                    <td>${percent(currentMonteCarlo.probability_positive)}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+`;
 
     // Validate cost export availability and populate the four summary cards.
     if (!Array.isArray(costs) || !costs.length) {
